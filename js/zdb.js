@@ -7,7 +7,8 @@ var Josh = Josh || {};
       }
     };
 
-    var wsUri = "ws://sj7:7682/";
+      var wsUri = 'ws' + root.location.origin.slice(4);
+      _console.log(wsUri);
 
       var itemTemplate = _.template("<% _.each(items, function(item, i) { %><div><%- item %></div><% }); %>");
       var fooTemplate = _.template("<div><% _.each(items, function(item, i) { %><%- item %><<% }); %></div>");
