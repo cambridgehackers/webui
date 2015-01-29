@@ -9,7 +9,7 @@ var Josh = Josh || {};
 
     var wsUri = "ws://sj7:7682/";
 
-      var itemTemplate = _.template("<% _.each(items, function(item, i) { %><%- item %><% }); %>");
+      var itemTemplate = _.template("<% _.each(items, function(item, i) { %><div><%- item %></div><% }); %>");
       var fooTemplate = _.template("<div><% _.each(items, function(item, i) { %><%- item %><<% }); %></div>");
       function writeToScreen(message, callback) {
 	  _console.log('writeToScreen: ' + message);
@@ -27,10 +27,11 @@ var Josh = Josh || {};
 	  };
 	  websocket.onclose = function(evt) {
 	      websocket.close();
-	      callback(result);
+	      var lines = result.split('\n');
+	      callback(itemTemplate({items:lines}));
 	  };
 	  websocket.onmessage = function(evt) {
-	      result = result + itemTemplate({items:evt.data});
+	      result = result + evt.data;
 	  };
 	  websocket.onerror = function(evt) {
 	      writeToScreen('ERROR: ' + evt.data, callback);
@@ -45,10 +46,11 @@ var Josh = Josh || {};
 	  };
 	  websocket.onclose = function(evt) {
 	      websocket.close();
-	      callback(result);
+	      var lines = result.split('\n');
+	      callback(itemTemplate({items:lines}));
 	  };
 	  websocket.onmessage = function(evt) {
-	      result = result + itemTemplate({items:evt.data});
+	      result = result + evt.data;
 	  };
 	  websocket.onerror = function(evt) {
 	      writeToScreen('ERROR: ' + evt.data, callback);
