@@ -9,7 +9,8 @@ var Josh = Josh || {};
 
     var wsUri = "ws://sj7:7682/";
 
-      var itemTemplate = _.template("<div><% _.each(items, function(item, i) { %><div><%- i %>&nbsp;<%- item %></div><% }); %></div>");
+      var itemTemplate = _.template("<% _.each(items, function(item, i) { %><%- item %><% }); %>");
+      var fooTemplate = _.template("<div><% _.each(items, function(item, i) { %><%- item %><<% }); %></div>");
       function writeToScreen(message, callback) {
 	  _console.log('writeToScreen: ' + message);
 	  _console.log('callback='+callback);
@@ -17,53 +18,40 @@ var Josh = Josh || {};
 	  callback(itemTemplate({items: [message]}));
       }
 
-      function runShellCommand(cmd, cb) { 
+      function runShellCommand(cmd, cb) {
 	  var callback = cb;
-	  websocket = new WebSocket(wsUri, "shell");
-	  websocket.onopen = function(evt) { onOpen(evt) };
-	  websocket.onclose = function(evt) { onClose(evt) };
-	  websocket.onmessage = function(evt) { onMessage(evt) };
-	  websocket.onerror = function(evt) { onError(evt) };
-	  function onOpen(evt) {
-	      doSend(cmd);
-	  }
-	  function onClose(evt) {
+	  var result = "";
+	  var websocket = new WebSocket(wsUri, "shell");
+	  websocket.onopen = function(evt) {
+	      websocket.send(cmd);
+	  };
+	  websocket.onclose = function(evt) {
 	      websocket.close();
-	  }
-	  function onMessage(evt) {
-	      writeToScreen(evt.data, callback);
-	  }
-	  function onError(evt) {
+	      callback(result);
+	  };
+	  websocket.onmessage = function(evt) {
+	      result = result + itemTemplate({items:evt.data});
+	  };
+	  websocket.onerror = function(evt) {
 	      writeToScreen('ERROR: ' + evt.data, callback);
-	  }
-	  function doSend(message) { 
-	      //writeToScreen("SENT: " + message, callback);
-	      websocket.send(message);
 	  }
       };
       function pullFile(file, cb) {
 	  var callback = cb;
 	  var websocket = new WebSocket(wsUri + file, "pull");
-	  websocket.onopen = function(evt) { onOpen(evt) };
-	  websocket.onclose = function(evt) { onClose(evt) };
-	  websocket.onmessage = function(evt) { onMessage(evt) };
-	  websocket.onerror = function(evt) { onError(evt) };
-	  function onOpen(evt) {
-	      writeToScreen("CONNECTED", callback);
-	      doSend(file);
-	  }
-	  function onClose(evt) {
-	      writeToScreen("DISCONNECTED", callback);
-	  }
-	  function onMessage(evt) {
-	      writeToScreen(evt.data, callback);
-	  }
-	  function onError(evt) {
+	  var result = "";
+	  websocket.onopen = function(evt) {
+	      websocket.send(cmd);
+	  };
+	  websocket.onclose = function(evt) {
+	      websocket.close();
+	      callback(result);
+	  };
+	  websocket.onmessage = function(evt) {
+	      result = result + itemTemplate({items:evt.data});
+	  };
+	  websocket.onerror = function(evt) {
 	      writeToScreen('ERROR: ' + evt.data, callback);
-	  }
-	  function doSend(message) {
-	      //writeToScreen("SENT: " + message, callback);
-	      websocket.send(message);
 	  }
       };
 
