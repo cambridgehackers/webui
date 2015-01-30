@@ -20,6 +20,8 @@
 
 #define MAX_ZEDBOARD_PAYLOAD 256
 
+int prefixlen=4;
+
 const char * get_mimetype(const char *file)
 {
 	int n = strlen(file);
@@ -60,7 +62,7 @@ callback_zedboard(struct libwebsocket_context *context,
 	
     switch (reason) {
     case LWS_CALLBACK_HTTP: {
-      char *buf = (char *)in+1;
+      char *buf = (char *)in+prefixlen;
       char *other_headers = 0;
       const char *mimetype = get_mimetype(in);
       int other_headers_len = 0;
@@ -90,7 +92,7 @@ callback_pull(struct libwebsocket_context *context,
 	//int urilen = lws_hdr_total_length(wsi, WSI_TOKEN_GET_URI);
 	char uri[256];
 	lws_hdr_copy(wsi, uri, sizeof(uri), WSI_TOKEN_GET_URI);
-	pss->fd = open(uri+1, O_RDONLY);
+	pss->fd = open(uri+prefixlen, O_RDONLY);
 	pss->len = 0;
 	fprintf(stderr, "pull uri %s fd=%d\n", uri, pss->fd);
 	libwebsocket_callback_on_writable(context, wsi);
