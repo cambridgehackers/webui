@@ -209,7 +209,7 @@ var Josh = Josh || {};
 		      'wget http://54.86.72.185/ui/' + $project + '/' + $dir + '/zedboard/bin/mkTop.xdevcfg.bin.gz',
 		      'rmmod portalmem && insmod portalmem.ko',
 		      'rmmod zynqportal && insmod zynqportal.ko',
-		      'zcat mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal',
+		      'zcat mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && echo programmed',
 		      'chmod agu+rx android.exe',
 		      './android.exe 2>&1'
 		     ];
@@ -248,7 +248,8 @@ var Josh = Josh || {};
 	  exec: function(cmd, args, callback) {
 	      _console.log("shell cmd=" + cmd);
 	      _console.log("shell args=" + args);
-	      runShellCommand(args.join(' '), callback);
+	      if (deviceUri)
+		  runShellCommand(args.join(' '), callback, deviceUri);
 	  }
       });
       shell.setCommandHandler("pull", {
