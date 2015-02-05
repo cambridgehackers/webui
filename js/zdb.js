@@ -150,37 +150,66 @@ var Josh = Josh || {};
           $shellPanel.blur();
       }
 
-      var runBuild = function(project, dir) {
-	  _console.log("running build " + project + ' dir ' + dir);
+      var $repo;
+      var $project;
+      var $dir;
+      var setProject = function(repourl, dir) {
+	  _console.log('running repo ' + repourl + ' dir ' + dir);
+	  function callback(text) {
+	      $buildPanel.append(text);
+	      $buildPanel.append('<br>');
+	  }
+	  $repo = repourl;
+	  if (repourl.indexOf('/') >= 0) {
+	      var parts = repourl.split('/');
+	      _console.log('parts: ' + parts);
+	      $project = parts[parts.length - 1];
+	  } else {
+	      $project = repourl;
+	      $repo = 'git://github.com/cambridgehackers/' + repourl;
+	  }
+	  $dir = dir;
+	  _console.log("$repo: " + $repo);
+	  _console.log("$project: " + $project);
+	  _console.log("$dir: " + $dir);
+      };
+
+      var runBuild = function(repourl, dir) {
+	  if (repourl) {
+	      setRepourl(repourl, dir);
+	  } else {
+	      repourl = $repo;
+	      dir = $dir;
+	  }	  
+	  _console.log("running build " + repourl + ' dir ' + dir);
 	  $buildPanel.empty();
 	  $buildPanel.slideDown();
 	  $buildPanel.focus();
 	  function callback(text) {
 	      $buildPanel.append(text);
+	      $buildPanel.append('<br>');
 	  }
-	  cmd = 'build.py "' + project + '"';
+	  cmd = 'build.py "' + repourl + '"';
 	  if (dir)
 	    cmd = cmd + ' "' + dir + '"';
-	  runStreamingShellCommand(cmd, callback, callback);
+	  runStreamingShellCommand(cmd, callback);
       };
 
       var displayBuildLines = function(lines) {
 	  _console.log('displayBuildLines: ');
 	  _console.log(lines);
 	  for (var i in lines)
-	      $buildPanel.append(lines[i]);
+	      $buildPanel.append('<p>'+lines[i]+'</p>');
       }
 
       var runDevice = function(args) {
 	  var cmds = ['cd /mnt/sdcard',
-		      'pwd',
 		      'rm -f android.exe mkTop.xdevcfg.bin.gz',
-		      'wget http://54.86.72.185/ui/connectal/examples/simple/zedboard/bin/android.exe',
-		      'wget http://54.86.72.185/ui/connectal/examples/simple/zedboard/bin/mkTop.xdevcfg.bin.gz',
-		      'zcat mkTop.xdevcfg.bin.gz > /dev/xdevcfg',
-		      'insmod portalmem.ko',
-		      'insmod zynqportal.ko',
-		      'cat /dev/connectal',
+		      'wget http://54.86.72.185/ui/' + $project + '/' + $dir + '/zedboard/bin/android.exe',
+		      'wget http://54.86.72.185/ui/' + $project + '/' + $dir + '/zedboard/bin/mkTop.xdevcfg.bin.gz',
+		      'rmmod portalmem && insmod portalmem.ko',
+		      'rmmod zynqportal && insmod zynqportal.ko',
+		      'zcat mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal',
 		      'chmod agu+rx android.exe',
 		      './android.exe 2>&1'
 		     ];
@@ -234,6 +263,12 @@ var Josh = Josh || {};
 	  exec: function(cmd, args, callback) {
 	      _console.log("starting device discovery");
 	      runDiscovery(callback);
+	  }
+      });
+      shell.setCommandHandler("project", {
+	  exec: function(cmd, args, callback) {
+	      setProject(args[0], args[1]);
+	      callback("");
 	  }
       });
       shell.setCommandHandler("build", {
