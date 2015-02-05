@@ -279,14 +279,12 @@ var Josh = Josh || {};
       shell.setCommandHandler("build", {
 	  exec: function(cmd, args, callback) {
 	      callback("");
-	      hideAndDeactivate();
 	      runBuild(args[0], args[1]);
 	  }
       });
       shell.setCommandHandler("run", {
 	  exec: function(cmd, args, callback) {
 	      callback("");
-	      hideAndDeactivate();
 	      runDevice(args);
 	  }
       });
