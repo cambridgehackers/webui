@@ -133,7 +133,7 @@ var Josh = Josh || {};
 		probeAddr(netaddr.join('.') + ':7682', $discoveryPanel, shellCallback);
 	    }
 	}
-	setTimeout(function () { shellCallback('<div>Discovery timed out</div>'); },
+	setTimeout(function () { if (!deviceUri) shellCallback('<div>Discovery timed out</div>'); },
 		   2000);
     };
 
@@ -309,7 +309,6 @@ var Josh = Josh || {};
 	// to and scrolled up as new content is added.
 	$shellPanel = $('#shell-panel');
 	$discoveryPanel = $('#discovery-panel');
-	$discoveryPanel.append('<div>discovery panel</div');
 	$buildPanel = $('#build-panel');
 
 
