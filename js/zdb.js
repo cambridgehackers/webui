@@ -180,7 +180,7 @@ var Josh = Josh || {};
 
       var runBuild = function(repourl, dir) {
 	  if (repourl) {
-	      setRepourl(repourl, dir);
+	      setProject(repourl, dir);
 	  } else {
 	      repourl = $repo;
 	      dir = $dir;

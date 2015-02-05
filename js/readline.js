@@ -459,6 +459,7 @@ Josh.Version = "0.2.10";
     }
 
     function cmdCancel() {
+	_console.log('cmdCancel');
       if(_onCancel) {
         _onCancel();
       }
