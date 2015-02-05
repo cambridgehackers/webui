@@ -119,9 +119,11 @@ var Josh = Josh || {};
 	  }
       };
 
-    function runDiscovery(shellCallback) {
+    function runDiscovery(addr, shellCallback) {
 	var i;
 	var netaddrs = ['192.168.168.100', '192.168.1.100', '54.86.72.185', '172.17.1.200'];
+	if (addr)
+	    netaddrs = [addr];
 	for (n in netaddrs) {
 	    var netaddr = netaddrs[n].split('.');
 	    var firstaddr = parseInt(netaddr[3]);
@@ -131,6 +133,8 @@ var Josh = Josh || {};
 		probeAddr(netaddr.join('.') + ':7682', $discoveryPanel, shellCallback);
 	    }
 	}
+	setTimeout(function () { shellCallback('<div>Discovery timed out</div>'); },
+		   2000);
     };
 
 
@@ -262,8 +266,8 @@ var Josh = Josh || {};
       });
       shell.setCommandHandler("discover", {
 	  exec: function(cmd, args, callback) {
-	      _console.log("starting device discovery");
-	      runDiscovery(callback);
+	      _console.log("starting device discovery " + args[0]);
+	      runDiscovery(args[0], callback);
 	  }
       });
       shell.setCommandHandler("project", {
