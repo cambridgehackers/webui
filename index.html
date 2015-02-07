@@ -16,6 +16,7 @@
     <script src="js/readline.js"></script>
     <script src="js/shell.js"></script>
     <script src="js/pathhandler.js"></script>
+    <script src="/ui/ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/zdb.js"></script>
     <style type="text/css">
         #shell-panel {
@@ -42,7 +43,11 @@
             overflow:scroll;
             overflow-x:hidden;
             overflow-y: scroll;
-        }</style>
+        }
+	#editor {
+	    height: 200px;
+	}
+</style>
 </head>
 <body>
 <div id="discovery-panel">
@@ -63,5 +68,12 @@
     <p><strong>shell </strong> <em>cmd</em> to run shell on device.</p>
 </div>
 
+<div id="editor">
+module mkFoo();
+endmodule
+</div>
+    
+<script>
+</script>
+
 </body>
-</html>

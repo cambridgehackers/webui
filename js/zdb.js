@@ -10,6 +10,7 @@ var Josh = Josh || {};
       var $shellPanel;
       var $discoveryPanel;
       var $buildPanel;
+      var $editor;
       var wsUri = 'ws' + root.location.origin.slice(4) + '/ws/';
       var deviceUri;
       _console.log(wsUri);
@@ -99,6 +100,31 @@ var Josh = Josh || {};
 	  websocket.onerror = function(evt) {
 	      writeToScreen('ERROR: ' + evt.data, callback);
 	  }
+      };
+      function getFile(file, cb, uri) {
+	  if (!uri)
+	      uri = wsUri;
+	  var callback = cb;
+	  var websocket = new WebSocket(uri + file, "shell");
+	  var result = "";
+	  var deferred = $.Deferred();
+	  websocket.onopen = function(evt) {
+	      var cmd = 'cat "' + file + '"';
+	      websocket.send(cmd);
+	  };
+	  websocket.onclose = function(evt) {
+	      websocket.close();
+	      if (callback)
+		  callback(itemTemplate({items:result.split('\n')}));
+	      deferred.resolve(result);
+	  };
+	  websocket.onmessage = function(evt) {
+	      result = result + evt.data;
+	  };
+	  websocket.onerror = function(evt) {
+	      writeToScreen('ERROR: ' + evt.data, callback);
+	  }
+	  return deferred;
       };
 
       function probeAddr(ipaddr, discoveryPanel, shellCallback) {
@@ -294,6 +320,15 @@ var Josh = Josh || {};
 	      hideAndDeactivate();
 	  }
       });
+      shell.setCommandHandler("edit", {
+	  exec: function(cmd, args, callback) {
+	      var d = getFile(args[0], 0, wsUri);
+	      d.done(function (v) {
+		  $editor.setValue(v);
+		  callback("");
+	      });
+	  }
+      });
 
     // Setup Document Behavior
     // -----------------------
@@ -332,6 +367,11 @@ var Josh = Josh || {};
 	// Attach our hide function to the EOT and Cancel events.
 	shell.onEOT(hideAndDeactivate);
 	shell.onCancel(hideAndDeactivate);
+
+	$editor = ace.edit("editor");
+	$editor.setTheme("ace/theme/monokai");
+	$editor.getSession().setMode("ace/mode/verilog");
+
     });
 
   })(root, $, _);
