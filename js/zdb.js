@@ -11,6 +11,7 @@ var Josh = Josh || {};
       var $discoveryPanel;
       var $buildPanel;
       var $editor;
+      var $filename;
       var wsUri = 'ws' + root.location.origin.slice(4) + '/ws/';
       var deviceUri;
       _console.log(wsUri);
@@ -101,10 +102,9 @@ var Josh = Josh || {};
 	      writeToScreen('ERROR: ' + evt.data, callback);
 	  }
       };
-      function getFile(file, cb, uri) {
+      function getFile(file, uri) {
 	  if (!uri)
 	      uri = wsUri;
-	  var callback = cb;
 	  var websocket = new WebSocket(uri + file, "shell");
 	  var result = "";
 	  var deferred = $.Deferred();
@@ -114,8 +114,30 @@ var Josh = Josh || {};
 	  };
 	  websocket.onclose = function(evt) {
 	      websocket.close();
-	      if (callback)
-		  callback(itemTemplate({items:result.split('\n')}));
+	      deferred.resolve(result);
+	  };
+	  websocket.onmessage = function(evt) {
+	      result = result + evt.data;
+	  };
+	  websocket.onerror = function(evt) {
+	      writeToScreen('ERROR: ' + evt.data, callback);
+	  }
+	  return deferred;
+      };
+      function putFile(file, text, uri) {
+	  if (!uri)
+	      uri = wsUri;
+	  var websocket = new WebSocket(uri + file, "shell");
+	  var deferred = $.Deferred();
+	  var result = '';
+	  websocket.onopen = function(evt) {
+	      var cmd = 'cat > "' + file + '" <<EOF';
+	      websocket.send(cmd);
+	      websocket.send(text);
+	      websocket.send("EOF");
+	  };
+	  websocket.onclose = function(evt) {
+	      websocket.close();
 	      deferred.resolve(result);
 	  };
 	  websocket.onmessage = function(evt) {
@@ -322,11 +344,25 @@ var Josh = Josh || {};
       });
       shell.setCommandHandler("edit", {
 	  exec: function(cmd, args, callback) {
-	      var d = getFile(args[0], 0, wsUri);
+	      $filename = args[0];
+	      var d = getFile($filename, wsUri);
 	      d.done(function (v) {
 		  $editor.setValue(v);
 		  callback("");
 	      });
+	  }
+      });
+      shell.setCommandHandler("save", {
+	  exec: function(cmd, args, callback) {
+	      var filename = args[0];
+	      if (!filename)
+		  filename = $filename;
+	      if (filename) {
+		  var d = putFile($filename, $editor.getValue(), wsUri);
+		  d.done(function (v) {
+		      callback("");
+		  });
+	      }
 	  }
       });
 
