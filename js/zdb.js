@@ -127,17 +127,14 @@ var Josh = Josh || {};
       function putFile(file, text, uri) {
 	  if (!uri)
 	      uri = wsUri;
-	  var websocket = new WebSocket(uri + file, "shell");
+	  var websocket = new WebSocket(uri + file, "push");
 	  var deferred = $.Deferred();
 	  var result = '';
 	  websocket.onopen = function(evt) {
-	      var cmd = 'cat > "' + file + '" <<EOF';
-	      websocket.send(cmd);
 	      websocket.send(text);
-	      websocket.send("EOF");
+	      websocket.close();
 	  };
 	  websocket.onclose = function(evt) {
-	      websocket.close();
 	      deferred.resolve(result);
 	  };
 	  websocket.onmessage = function(evt) {
@@ -358,7 +355,7 @@ var Josh = Josh || {};
 	      if (!filename)
 		  filename = $filename;
 	      if (filename) {
-		  var d = putFile($filename, $editor.getValue(), wsUri);
+		  var d = putFile(filename, $editor.getValue(), wsUri);
 		  d.done(function (v) {
 		      callback("");
 		  });

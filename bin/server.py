@@ -30,13 +30,16 @@ from autobahn.twisted.resource import WebSocketResource, HTTPChannelHixie76Aware
 
 from twisted.internet import protocol
 class WSProcessProtocol(protocol.ProcessProtocol):
-    def __init__(self, ssp, isBinary):
+    def __init__(self, ssp, isBinary, closeStdin):
         self.ssp = ssp
         self.isBinary = isBinary
+        self.closeStdin = closeStdin
     def connectionMade(self):
-        self.transport.closeStdin()
+        if self.closeStdin:
+            self.transport.closeStdin()
+    def inReceived(self, data):
+        self.transport.write(data)
     def outReceived(self, data):
-        print data
         self.ssp.sendMessage(data, self.isBinary)
     def errReceived(self, data):
         print '<err>'+data
@@ -49,22 +52,33 @@ class ShellServerProtocol(WebSocketServerProtocol):
 
    def onConnect(self, request):
       print("WebSocket connection request: {}".format(request))
+      self.cmd = None
+      protocol = self.websocket_protocols[0]
+      if protocol == 'push':
+          filename = request.path
+          filename = filename[4:]
+          print filename
+          self.f = open(filename, 'w')
       return (self.websocket_protocols[0],)
 
    def onMessage(self, payload, isBinary):
-       self.wspp = WSProcessProtocol(self, isBinary)
-       uid = None
-       gid = None
-       usePTY=True
-       childFDs = None
-       env = os.environ
-       env['PATH'] = env['PATH'] + ':bin'
-       env['LM_LICENSE_FILE'] = '27000@localhost'
-       reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env
+       protocol = self.websocket_protocols[0]
+       if protocol == 'shell':
+           self.wspp = WSProcessProtocol(self, isBinary, True)
+           usePTY=True
+           env = os.environ
+           env['PATH'] = env['PATH'] + ':bin'
+           env['LM_LICENSE_FILE'] = '27000@localhost'
+           reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env
                         )
-       #env={'HOME': os.environ['HOME']}
-       #path=os.environ['PATH'],
-       #uid, gid, usePTY, childFDs)
+       elif protocol == 'push':
+           self.f.write(payload)
+       else:
+           pass
+
+   def onClose(self, wasClean, code, reason):
+       if self.f:
+           self.f.close()
 
 if __name__ == '__main__':
 
