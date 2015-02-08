@@ -109,6 +109,7 @@ var Josh = Josh || {};
 	  var result = "";
 	  var deferred = $.Deferred();
 	  websocket.onopen = function(evt) {
+	      websocket.send('hello');
 	  };
 	  websocket.onclose = function(evt) {
 	      websocket.close();
@@ -140,7 +141,7 @@ var Josh = Josh || {};
 	      result = result + evt.data;
 	  };
 	  websocket.onerror = function(evt) {
-	      writeToScreen('ERROR: ' + evt.data, callback);
+	      deferred.reject(evt);
 	  }
 	  return deferred;
       };
@@ -345,6 +346,9 @@ var Josh = Josh || {};
 	      d.done(function (v) {
 		  $editor.setValue(v);
 		  callback("");
+	      });
+	      d.fail(function (v) {
+		  callback('Error: ' + v);
 	      });
 	  }
       });

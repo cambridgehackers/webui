@@ -53,6 +53,7 @@ class ShellServerProtocol(WebSocketServerProtocol):
    def onConnect(self, request):
       print("WebSocket connection request: {}".format(request))
       self.cmd = None
+      self.f = None
       protocol = self.websocket_protocols[0]
       if protocol == 'push' or protocol == 'pull':
           filename = request.path
@@ -60,11 +61,16 @@ class ShellServerProtocol(WebSocketServerProtocol):
           print filename
           if protocol == 'push':
               self.f = open(filename, 'w')
+              print self.f, 'w'
           else:
               self.f = open(filename, 'r')
-              t = self.f.read()
-              #self.sendMessage(t)
-              #self.sendClose()
+              self.t = self.f.read()
+              print self.t
+              def later(self):
+                  self.sendMessage(self.t)
+                  self.sendClose()
+              reactor.callLater(1, later, self)
+
       return (self.websocket_protocols[0],)
 
    def onMessage(self, payload, isBinary):
@@ -75,14 +81,14 @@ class ShellServerProtocol(WebSocketServerProtocol):
            env = os.environ
            env['PATH'] = env['PATH'] + ':bin'
            env['LM_LICENSE_FILE'] = '27000@localhost'
-           reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env
-                        )
+           reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env)
        elif protocol == 'push':
            self.f.write(payload)
        else:
            pass
 
-   def onClose(self, wasClean, code, reason):
+   def onCloseFoo(self, wasClean, code, reason):
+       print 'onClose', wasClean, code, reason
        if self.f:
            self.f.close()
 
