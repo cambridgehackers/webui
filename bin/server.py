@@ -54,11 +54,17 @@ class ShellServerProtocol(WebSocketServerProtocol):
       print("WebSocket connection request: {}".format(request))
       self.cmd = None
       protocol = self.websocket_protocols[0]
-      if protocol == 'push':
+      if protocol == 'push' or protocol == 'pull':
           filename = request.path
           filename = filename[4:]
           print filename
-          self.f = open(filename, 'w')
+          if protocol == 'push':
+              self.f = open(filename, 'w')
+          else:
+              self.f = open(filename, 'r')
+              t = self.f.read()
+              #self.sendMessage(t)
+              #self.sendClose()
       return (self.websocket_protocols[0],)
 
    def onMessage(self, payload, isBinary):

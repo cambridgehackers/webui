@@ -105,12 +105,10 @@ var Josh = Josh || {};
       function getFile(file, uri) {
 	  if (!uri)
 	      uri = wsUri;
-	  var websocket = new WebSocket(uri + file, "shell");
+	  var websocket = new WebSocket(uri + file, "pull");
 	  var result = "";
 	  var deferred = $.Deferred();
 	  websocket.onopen = function(evt) {
-	      var cmd = 'cat "' + file + '"';
-	      websocket.send(cmd);
 	  };
 	  websocket.onclose = function(evt) {
 	      websocket.close();
@@ -120,7 +118,8 @@ var Josh = Josh || {};
 	      result = result + evt.data;
 	  };
 	  websocket.onerror = function(evt) {
-	      writeToScreen('ERROR: ' + evt.data, callback);
+	      _console.log('ERROR: ' + evt);
+	      deferred.reject(evt.data);
 	  }
 	  return deferred;
       };
