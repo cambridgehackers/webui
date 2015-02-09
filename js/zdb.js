@@ -26,6 +26,58 @@ var Josh = Josh || {};
 	  callback(itemTemplate({items: [message]}));
       }
 
+      function WebSocketRequestProxy(intname, metadata, uri) {
+	  var obj = {'metadata': metadata};
+	  for (var i in metadata.interfaces) {
+	      var decl = metadata.interfaces[i];
+	      if (decl.name == intname) {
+		  _console.log("new WebSocket for " + intname);
+		  var ws = new WebSocket(uri);
+		  ws.messages = [];
+		  ws.isopen = false;
+		  ws.onopen = function(evt) {
+		      _console.log(intname + ':connected via ' + uri);
+		      for (var m in ws.messages) {
+			  ws.send(ws.messages[m]);
+			  ws.messages = [];
+		      }
+		  };
+		  ws.onmessage = function(evt) {
+		      _console.log("received websocket message: " + evt.data);
+		  }
+		  ws.onerror = function(evt) {
+		      callback('error: ' + evt.data);
+		  };
+		  ws.onclose = function(evt) {
+		      _console.log('websocket closed');
+		  }
+		  var methodDecls = decl.decls;
+		  for (var j in methodDecls) {
+		      var methodDecl = methodDecls[j];
+		      _console.log("method " + methodDecls[j].name);
+		      obj[methodDecl.name] = (function (methodDecl) {
+			  function marshall() {
+			      var message = {"name":methodDecl.name};
+			      var params = methodDecl.params;
+			      var a = 0;
+			      for (var k in params) {
+				  message[params[k]] = arguments[a];
+				  a++;
+			      }
+			      _console.log("method: " + methodDecl.name + " message: " + message);
+			      if (ws.isopen)
+				  ws.send(message);
+			      else
+				  ws.messages.push(message);
+			  };
+			  return marshall;
+		      })(methodDecl);
+		  }
+	      }
+	  }
+	  return obj;
+      };
+
       function runShellCommand(cmd, cb, uri) {
 	  if (!uri)
 	      uri = wsUri;
@@ -361,6 +413,44 @@ var Josh = Josh || {};
 		      callback("");
 		  });
 	      }
+	  }
+      });
+      shell.setCommandHandler("websocket", {
+	  exec: function(cmd, args, callback) {
+	      var uri = args[0];
+	      var msg = args[1];
+	      var ws = new WebSocket(uri);
+	      ws.onopen = function(evt) {
+		  if (msg) {
+		      ws.send(msg);
+		  }
+		  callback('connected and sent message');
+	      };
+	      ws.onmessage = function(evt) {
+		  _console.log("received websocket message: " + evt.data);
+	      }
+	      ws.onerror = function(evt) {
+		  callback('error: ' + evt.data);
+	      };
+	      ws.onclose = function(evt) {
+		  _console.log('websocket closed');
+	      }
+	  }
+      });
+      var $proxy;
+      shell.setCommandHandler("proxy", {
+	  exec: function(cmd, args, callback) {
+	      var intname = args[0];
+	      var uri = '/ui/connectal/examples/echowebsocket/bluesim/generatedDesignInterfaceFile.json';
+	      $.getJSON(uri, function (data) {
+		  _console.log("interface data", data);
+		  callback(data);
+		  $proxy = new WebSocketRequestProxy(intname, data, 'ws://127.0.0.1:5001/');
+		  _console.log("$proxy: " + $proxy);
+		  for (var i in $proxy)
+		      _console.log("$proxy[" + i + "]=" + $proxy[i]);
+		  $proxy.say(42);
+	      });
 	  }
       });
 
