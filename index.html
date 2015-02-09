@@ -44,8 +44,8 @@
             overflow-x:hidden;
             overflow-y: scroll;
         }
-	#editor {
-	    height: 200px;
+	#footxt {
+	position: absolute; top: 40px; padding: 5px; left:0; bottom:0; right: 0;
 	}
 </style>
 </head>
@@ -68,9 +68,19 @@
     <p><strong>shell </strong> <em>cmd</em> to run shell on device.</p>
 </div>
 
-<div id="editor">
+<div id="tabs">
+<ul>
+<li><a href="#footxt">foo.txt</a></li>
+<li><a href="#bartxt">bar.txt</a></li>
+</ul>
+<div id="footxt">
 module mkFoo();
 endmodule
+</div>
+<div id="bartxt">
+module mkBar();
+endmodule
+</div>
 </div>
     
 <script>

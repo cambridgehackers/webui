@@ -233,7 +233,6 @@ var Josh = Josh || {};
 	  _console.log("running build " + repourl + ' dir ' + dir);
 	  $buildPanel.empty();
 	  $buildPanel.slideDown();
-	  $buildPanel.focus();
 	  function callback(text) {
 	      $buildPanel.append(text);
 	      $buildPanel.append('<br>');
@@ -277,7 +276,6 @@ var Josh = Josh || {};
 	  }
 	  $buildPanel.empty();
 	  $buildPanel.slideDown();
-	  $buildPanel.focus();
 	  chainCommands();
       };
 
@@ -382,10 +380,11 @@ var Josh = Josh || {};
 
 
 	// We use **jquery-ui**'s `resizable` to let us drag the bottom edge of the console up and down.
-	$shellPanel.resizable({ handles: "s"});
-	$buildPanel.resizable({ handles: "s"});
+	$shellPanel.resizable();
+	$buildPanel.resizable();
 
 	// Wire up a the keypress handler. This will be used only for shell activation.
+	if (1) {
 	$(document).keypress(function(event) {
 
             // If the shell is already active drop out of the keyhandler, since all keyhandling happens in `Readline`.
@@ -399,15 +398,24 @@ var Josh = Josh || {};
 		activateConsolePanel();
             }
 	});
+	}
 
 	// Attach our hide function to the EOT and Cancel events.
 	shell.onEOT(hideAndDeactivate);
 	shell.onCancel(hideAndDeactivate);
 
-	$editor = ace.edit("editor");
+	$("#tabs").tabs();
+	$('#tabs').resizable({
+	    'resize': function () {
+		$editor.resize();
+	    }
+	});
+	$editor = ace.edit("footxt");
 	$editor.setTheme("ace/theme/monokai");
 	$editor.getSession().setMode("ace/mode/verilog");
-
+	var bareditor = ace.edit("bartxt");
+	bareditor.setTheme("ace/theme/monokai");
+	bareditor.getSession().setMode("ace/mode/verilog");
     });
 
   })(root, $, _);
