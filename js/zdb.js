@@ -9,7 +9,7 @@ var Josh = Josh || {};
 
       var $shellPanel;
       var $discoveryPanel;
-      var $buildPanel;
+      var $buildPanel, $buildView;
       var $editor;
       var $filename;
       var wsUri = 'ws' + root.location.origin.slice(4) + '/ws/';
@@ -277,8 +277,8 @@ var Josh = Josh || {};
       var setProject = function(repourl, dir, updateFields) {
 	  _console.log('running repo ' + repourl + ' dir ' + dir);
 	  function callback(text) {
-	      $buildPanel.append(text);
-	      $buildPanel.append('<br>');
+	      $buildView.append(text);
+	      $buildView.append('<br>');
 	  }
 	  $repo = repourl;
 	  if (repourl.indexOf('/') >= 0) {
@@ -307,11 +307,12 @@ var Josh = Josh || {};
 	      dir = $dir;
 	  }	  
 	  _console.log("running build " + repourl + ' dir ' + dir);
-	  $buildPanel.empty();
+	  $buildView.empty();
 	  $buildPanel.slideDown();
 	  function callback(text) {
-	      $buildPanel.append(text);
-	      $buildPanel.append('<br>');
+	      $buildView.append(text);
+	      $buildView.append('<br>');
+	      $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
 	  }
 	  cmd = 'build.py "' + repourl + '"';
 	  if (dir)
@@ -328,7 +329,7 @@ var Josh = Josh || {};
 
       var displayBuildLines = function(lines) {
 	  for (var i in lines)
-	      $buildPanel.append('<p>'+lines[i]+'</p>');
+	      $buildView.append('<p>'+lines[i]+'</p>');
       }
 
       var runDevice = function(args) {
@@ -355,7 +356,7 @@ var Josh = Josh || {};
 		  d.done(chainCommands);
 	      }
 	  }
-	  $buildPanel.empty();
+	  $buildView.empty();
 	  $buildPanel.slideDown();
 	  chainCommands();
       };
@@ -505,6 +506,7 @@ var Josh = Josh || {};
 	$shellPanel = $('#shell-panel');
 	$discoveryPanel = $('#discovery-panel');
 	$buildPanel = $('#build-panel');
+	$buildView = $('#build-view');
 
 
 	// We use **jquery-ui**'s `resizable` to let us drag the bottom edge of the console up and down.
