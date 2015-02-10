@@ -16,6 +16,7 @@ var Josh = Josh || {};
       var deviceUri;
       var projectField;
       var dirField;
+      var buildButton;
       _console.log(wsUri);
 
       var itemTemplate = _.template('<% _.each(items, function(item, i) { %><div><%- item %></div><% }); %>');
@@ -112,6 +113,7 @@ var Josh = Josh || {};
 	      websocket.send(cmd);
 	  };
 	  websocket.onclose = function(evt) {
+	      _console.log('runStreamingShellCommand closed ' + cmd);
 	      websocket.close();
 	      deferred.resolve();
 	  };
@@ -130,7 +132,7 @@ var Josh = Josh || {};
 	      deferred.notify(lines);
 	  };
 	  websocket.onerror = function(evt) {
-	      writeToScreen('ERROR: ' + evt.data, callback);
+	      _console.log('ERROR: ' + evt.data);
 	      deferred.reject();
 	  }
 	  return deferred;
@@ -298,7 +300,14 @@ var Josh = Josh || {};
 	  cmd = 'build.py "' + repourl + '"';
 	  if (dir)
 	    cmd = cmd + ' "' + dir + '"';
-	  runStreamingShellCommand(cmd, callback);
+	  var d = runStreamingShellCommand(cmd, callback);
+	  buildButton.val('building...');
+	  d.done(function () {
+	      buildButton.val('Build');
+	  });
+	  d.fail(function () {
+	      buildButton.val('Build');
+	  });
       };
 
       var displayBuildLines = function(lines) {
@@ -513,7 +522,8 @@ var Josh = Josh || {};
 		$editor.resize();
 	    }
 	});
-	$('#build_button').button().click(function(evt) {
+	buildButton = $('#build_button');
+	buildButton.button().click(function(evt) {
 	    evt.preventDefault();
 	    runBuild($project, $dir);
 	});
