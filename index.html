@@ -44,8 +44,11 @@
             overflow-x:hidden;
             overflow-y: scroll;
         }
-	#footxt {
+	.editortab {
 	position: absolute; top: 40px; padding: 5px; left:0; bottom:0; right: 0;
+	}
+	#tabs {
+	height: 400px;
 	}
 </style>
 </head>
@@ -73,11 +76,11 @@
 <li><a href="#footxt">foo.txt</a></li>
 <li><a href="#bartxt">bar.txt</a></li>
 </ul>
-<div id="footxt">
+<div id="footxt" class="editortab">
 module mkFoo();
 endmodule
 </div>
-<div id="bartxt">
+<div id="bartxt" class="editortab">
 module mkBar();
 endmodule
 </div>
