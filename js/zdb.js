@@ -17,6 +17,9 @@ var Josh = Josh || {};
       var projectField;
       var dirField;
       var buildButton;
+      var networkPrefixField;
+      var discoverButton;
+      var runButton;
       _console.log(wsUri);
 
       var itemTemplate = _.template('<% _.each(items, function(item, i) { %><div><%- item %></div><% }); %>');
@@ -215,8 +218,8 @@ var Josh = Josh || {};
 	  return deferred;
       };
 
-      function probeAddr(ipaddr, discoveryPanel, shellCallback) {
-	  var uri = 'ws://' + ipaddr + '/ws/';
+      function probeAddr(ipaddr, port, discoveryPanel, shellCallback) {
+	  var uri = 'ws://' + ipaddr + ':' + port + '/ws/';
 	  var websocket = new WebSocket(uri, 'shell');
 	  websocket.onopen = function(evt) {
 	      discoveryPanel.append('<div>Device: ' + ipaddr + '</div>');
@@ -244,7 +247,7 @@ var Josh = Josh || {};
 	    for (var i = 0; i < 10; i++) {
 		netaddr[3] = i + firstaddr;
 		console.log('Probing ' + netaddr);
-		probeAddr(netaddr.join('.') + ':7682', $discoveryPanel, shellCallback);
+		probeAddr(netaddr.join('.'), 7682, $discoveryPanel, shellCallback);
 	    }
 	}
 	setTimeout(function () { if (!deviceUri) shellCallback('<div>Discovery timed out</div>'); },
@@ -539,6 +542,23 @@ var Josh = Josh || {};
 	buildButton.button().click(function(evt) {
 	    evt.preventDefault();
 	    runBuild($project, $dir);
+	});
+	discoverButton = $('#discover_button');
+	discoverButton.button().click(function(evt) {
+	    evt.preventDefault();
+	    probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
+	});
+	runButton = $('#run_button');
+	runButton.button().click(function(evt) {
+	    evt.preventDefault();
+	    if (!deviceUri)
+		probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
+	    runDevice($project, $dir);
+	});
+	networkPrefixField = $('#network_prefix');
+	networkPrefixField.change(function (evt) {
+	    _console.log('probing addr ' + networkPrefixField.val());
+	    probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
 	});
 	projectField = $('#project');
 	projectField.change(function (evt) {
