@@ -157,7 +157,7 @@ var Josh = Josh || {};
         $(id(_input_id) + ' .input .right').html(right);
         _cursor_visible = true;
         self.scrollToBottom();
-        _console.log('rendered "' + text + '" w/ cursor at ' + cursorIdx);
+        //_console.log('rendered "' + text + '" w/ cursor at ' + cursorIdx);
       },
       refresh: function() {
         $(id(_input_id)).replaceWith(self.templates.input_cmd({id:_input_id}));

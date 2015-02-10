@@ -287,7 +287,7 @@ Josh.Version = "0.2.10";
     }
 
     function call(cmd) {
-      _console.log('calling: ' + cmd.name + ', previous: ' + _lastCmd);
+      //_console.log('calling: ' + cmd.name + ', previous: ' + _lastCmd);
       if(_inSearch && cmd.name != "cmdKeyPress" && cmd.name != "cmdReverseSearch") {
         _inSearch = false;
         if(cmd.name == 'cmdEsc') {
@@ -674,7 +674,7 @@ Josh.Version = "0.2.10";
         }
 
         // check for some special first keys, regardless of modifiers
-        _console.log("key: " + e.keyCode);
+        //_console.log("key: " + e.keyCode);
         var cmd = _keyMap['default'][e.keyCode];
         // intercept ctrl- and meta- sequences (may override the non-modifier cmd captured above
         var mod;
