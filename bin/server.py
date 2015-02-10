@@ -34,10 +34,11 @@ class WSProcessProtocol(protocol.ProcessProtocol):
         self.ssp = ssp
         self.isBinary = isBinary
         self.closeStdin = closeStdin
+        self.active = True
         def heartbeat(self):
-            self.sendMessage(self.t)
-            self.sendMessage("<hb>")
-            reactor.callLater(20, heartbeat, self)
+            if self.active:
+                self.ssp.sendMessage("<hb>")
+                reactor.callLater(20, heartbeat, self)
         reactor.callLater(20, heartbeat, self)
 
     def connectionMade(self):
@@ -54,6 +55,7 @@ class WSProcessProtocol(protocol.ProcessProtocol):
         self.ssp.sendMessage('<status>%d' % status.value.exitCode, self.isBinary)
         print 'processExited', status
         self.ssp.sendClose()
+        self.active = False
 
 class ShellServerProtocol(WebSocketServerProtocol):
 
