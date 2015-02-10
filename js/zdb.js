@@ -296,8 +296,6 @@ var Josh = Josh || {};
       };
 
       var displayBuildLines = function(lines) {
-	  _console.log('displayBuildLines: ');
-	  _console.log(lines);
 	  for (var i in lines)
 	      $buildPanel.append('<p>'+lines[i]+'</p>');
       }
