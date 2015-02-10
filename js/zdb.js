@@ -351,6 +351,15 @@ var Josh = Josh || {};
 		  runShellCommand(args.join(' '), callback, deviceUri);
 	  }
       });
+      shell.setCommandHandler("git", {
+	  exec: function(cmd, args, callback) {
+	      _console.log("git args=" + args);
+	      if (wsUri && $project)
+		  runShellCommand('cd "' + $project + '"; git ' + args.join(' '), callback, deviceUri);
+	      else
+		  callback("Error: no project defined");
+	  }
+      });
       shell.setCommandHandler("pull", {
 	  exec: function(cmd, args, callback) {
 	      _console.log("pull cmd=" + cmd);
