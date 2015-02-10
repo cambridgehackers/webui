@@ -23,7 +23,7 @@ var Josh = Josh || {};
       _console.log(wsUri);
 
       var itemTemplate = _.template('<% _.each(items, function(item, i) { %><div><%- item %></div><% }); %>');
-      var errItemTemplate = _.template('<% _.each(items, function(item, i) { %><div><span class="input"><%- item %></span></div><% }); %>');
+      var errItemTemplate = _.template('<% _.each(items, function(item, i) { %><div><span class="stderr"><%- item %></span></div><% }); %>');
       var fooTemplate = _.template("<div><% _.each(items, function(item, i) { %><%- item %><<% }); %></div>");
       function writeToScreen(message, callback) {
 	  _console.log('writeToScreen: ' + message);
