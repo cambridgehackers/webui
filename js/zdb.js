@@ -130,6 +130,8 @@ var Josh = Josh || {};
 	  websocket.onmessage = function(evt) {
 	      var prefix = ''
 	      var data = evt.data
+	      if (data.indexOf('<hb>') == 0)
+		  return;
 	      if (data.indexOf('<err>') == 0) {
 		  prefix = '<err>';
 		  data = data.slice(5);
@@ -142,7 +144,8 @@ var Josh = Josh || {};
 	      deferred.notify(lines);
 	  };
 	  websocket.onerror = function(evt) {
-	      _console.log('ERROR: ' + evt.data);
+	      _console.log('ERROR: ' + evt);
+	      _console.log('keys(evt)=' + keys(evt));
 	      deferred.reject();
 	  }
 	  return deferred;
