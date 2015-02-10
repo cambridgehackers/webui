@@ -29,6 +29,14 @@ var Josh = Josh || {};
 	  callback(itemTemplate({items: [message]}));
       }
 
+      function keys(o) {
+	  var ks = [];
+	  for (var k in o) {
+	      ks.push(k);
+	  }
+	  return ks;
+      };
+
       function WebSocketRequestProxy(intname, metadata, uri) {
 	  var obj = {'metadata': metadata};
 	  for (var i in metadata.interfaces) {
@@ -114,6 +122,8 @@ var Josh = Josh || {};
 	  };
 	  websocket.onclose = function(evt) {
 	      _console.log('runStreamingShellCommand closed ' + cmd);
+	      _console.log('reason: ' + evt.reason + ' code: ' + evt.code + ' wasClean: ' + evt.wasClean);
+	      _console.log('onclose evt ' + evt + ' keys: ' + keys(evt));
 	      websocket.close();
 	      deferred.resolve();
 	  };
@@ -527,13 +537,6 @@ var Josh = Josh || {};
 	    evt.preventDefault();
 	    runBuild($project, $dir);
 	});
-	function keys(o) {
-	    var ks = [];
-	    for (var k in o) {
-		ks.push(k);
-	    }
-	    return ks;
-	};
 	projectField = $('#project');
 	projectField.change(function (evt) {
 	    setProject(projectField.val(), $dir);
