@@ -541,7 +541,7 @@ var Josh = Josh || {};
 	buildButton = $('#build_button');
 	buildButton.button().click(function(evt) {
 	    evt.preventDefault();
-	    runBuild($project, $dir);
+	    runBuild($repo, $dir);
 	});
 	discoverButton = $('#discover_button');
 	discoverButton.button().click(function(evt) {
