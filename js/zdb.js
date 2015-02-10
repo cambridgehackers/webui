@@ -433,6 +433,7 @@ var Josh = Josh || {};
 	      $filename = args[0];
 	      var d = getFile($filename, wsUri);
 	      d.done(function (v) {
+		  $('#tabs').slideDown();
 		  $editor.setValue(v);
 		  callback("");
 	      });
