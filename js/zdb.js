@@ -14,6 +14,8 @@ var Josh = Josh || {};
       var $filename;
       var wsUri = 'ws' + root.location.origin.slice(4) + '/ws/';
       var deviceUri;
+      var projectField;
+      var dirField;
       _console.log(wsUri);
 
       var itemTemplate = _.template('<% _.each(items, function(item, i) { %><div><%- item %></div><% }); %>');
@@ -254,7 +256,7 @@ var Josh = Josh || {};
       var $repo;
       var $project;
       var $dir;
-      var setProject = function(repourl, dir) {
+      var setProject = function(repourl, dir, updateFields) {
 	  _console.log('running repo ' + repourl + ' dir ' + dir);
 	  function callback(text) {
 	      $buildPanel.append(text);
@@ -273,11 +275,15 @@ var Josh = Josh || {};
 	  _console.log("$repo: " + $repo);
 	  _console.log("$project: " + $project);
 	  _console.log("$dir: " + $dir);
+	  if (updateFields) {
+	      projectField.val($repo);
+	      dirField.val($dir);
+	  }
       };
 
       var runBuild = function(repourl, dir) {
 	  if (repourl) {
-	      setProject(repourl, dir);
+	      setProject(repourl, dir, 1);
 	  } else {
 	      repourl = $repo;
 	      dir = $dir;
@@ -374,7 +380,7 @@ var Josh = Josh || {};
       });
       shell.setCommandHandler("project", {
 	  exec: function(cmd, args, callback) {
-	      setProject(args[0], args[1]);
+	      setProject(args[0], args[1], 1);
 	      callback("");
 	  }
       });
@@ -506,6 +512,25 @@ var Josh = Josh || {};
 	    'resize': function () {
 		$editor.resize();
 	    }
+	});
+	$('#build_button').button().click(function(evt) {
+	    evt.preventDefault();
+	    runBuild($project, $dir);
+	});
+	function keys(o) {
+	    var ks = [];
+	    for (var k in o) {
+		ks.push(k);
+	    }
+	    return ks;
+	};
+	projectField = $('#project');
+	projectField.change(function (evt) {
+	    setProject(projectField.val(), $dir);
+	});
+	dirField = $('#dir');
+	dirField.change(function (evt) {
+	    setProject($repo, dirField.val());
 	});
 	$editor = ace.edit("footxt");
 	$editor.setTheme("ace/theme/monokai");
