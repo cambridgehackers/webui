@@ -577,7 +577,10 @@ var Josh = Josh || {};
 	discoverButton = $('#discover_button');
 	discoverButton.button().click(function(evt) {
 	    evt.preventDefault();
-	    probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
+	    var prefix = networkPrefixField.val();
+	    probeAddr(prefix, 7682, $discoveryPanel, function() {
+		$.session.set("connectal_network_prefix", prefix);
+	    });
 	});
 	runButton = $('#run_button');
 	runButton.button().click(function(evt) {
@@ -589,8 +592,14 @@ var Josh = Josh || {};
 	networkPrefixField = $('#network_prefix');
 	networkPrefixField.change(function (evt) {
 	    _console.log('probing addr ' + networkPrefixField.val());
-	    probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
+	    var prefix = networkPrefixField.val();
+	    probeAddr(prefix, 7682, $discoveryPanel, function() {
+		$.session.set("connectal_network_prefix", prefix);
+	    });
 	});
+	var prefix = $.session.get("connectal_network_prefix");
+	if (prefix)
+	    networkPrefixField.val(prefix);
 	projectField = $('#project');
 	projectField.val($repo);
 	projectField.change(function (evt) {
