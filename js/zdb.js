@@ -313,15 +313,20 @@ var Josh = Josh || {};
 	  var filePanel = $('#file-panel');
 	  var fileView = $('#file-view');
 	  var fileList = $('#file-list');
+	  fileList.empty();
 	  function callback(lines) {
 	      for (var i in lines) {
 		  var text = lines[i];
 		  _console.log('text: ' + text);
 		  if (text.indexOf('<file>') == 0) {
 		      var filename = text.slice(6);
-		      var uri = 'https:' + $repo.slice(4) + '/blob/master';
+		      if (filename.indexOf('zedboard') == 0) {
+			  var uri = '/ui/' + username + '/' + $project;
+		      } else {
+			  var uri = 'https:' + $repo.slice(4) + '/blob/master';
+		      }
 		      if ($dir)
-			  uri = uri + $dir;
+			  uri = uri + '/' + $dir;
 		      uri = uri + '/' + filename;
 		      fileList.append('<li><a href="' + uri + '">' + filename + '</a></li>');
 		      filePanel.animate({'scrollTop': fileView.height()}, 10);
