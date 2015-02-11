@@ -52,6 +52,9 @@
 	.editortab {
 	position: absolute; top: 40px; padding: 5px; left:0; bottom:0; right: 0;
 	}
+	#shellinstructions {
+	    display: none;
+	}
 	#tabs {
             display: none;
 	    height: 400px;
@@ -65,7 +68,7 @@
 <div id="shell-panel">
     <div id="shell-view"></div>
 </div>
-<div>
+<div id="shellinstructions">
     <p>Press <strong>~</strong> to activate console.</p>
     <p><strong>project repo [dir] </strong> to specify a repo and subdirectory</p>
     <p><strong>build [repo] [dir] </strong> to clone/pull repo and run make -C dir build.zedboard</p>
