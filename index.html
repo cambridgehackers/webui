@@ -77,11 +77,19 @@
 <p>
 <label>User name</label> <input id="username" value=""></input>
 <p>
-<label>Repository</label> <input id="project" value=""></input>
-<label>Directory</label> <input id="dir" value=""></input>
+<form action="#">
+  <fieldset>
+    <label for="project">Repository</label> <input id="project" value=""></input>
+    <label for="dir">Directory</label> <input id="dir" value=""></input>
+    <label for="boardname">Select a target</label>
+    <select name="boardname" id="boardname">
+      <option selected="selected">zedboard</option>
+      <option>bluesim</option>
+    </select>
+    <input id="network_prefix" value="192.168.168.100"/>
+  </fieldset>
+</form>
 <input id="build_button" value="Build"/>
-<p>
-<input id="network_prefix" value="192.168.168.100"/>
 <input id="discover_button" value="Discover"/>
 <input id="run_button" value="Run"/>
 <div id="tabs">
