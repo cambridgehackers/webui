@@ -294,6 +294,9 @@ var Josh = Josh || {};
 	  _console.log("$repo: " + $repo);
 	  _console.log("$project: " + $project);
 	  _console.log("$dir: " + $dir);
+	  $.session.set("connectalrepo", $repo, 1);
+	  $.session.set("connectalproject", $project, 1);
+	  $.session.set("connectaldir", $dir, 1);
 	  if (updateFields) {
 	      projectField.val($repo);
 	      dirField.val($dir);
@@ -521,8 +524,9 @@ var Josh = Josh || {};
 	    username = $('#username').val();
 	    $.session.set('connectaluser', username, 1);
 	});
-
-	_console.log(JSON.stringify(['build.py', username, '...']));
+	$repo = $.session.get("connectalrepo");
+	$project = $.session.get("connectalproject");
+	$dir = $.session.get("connectaldir");
 
 	// The default name for the div the shell uses as its container is `shell-panel`, although that can be changed via
 	// the shell config parameter `shell-panel-id`. The `Shell` display model relies on a 'panel' to contain a 'view'.
@@ -588,10 +592,12 @@ var Josh = Josh || {};
 	    probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
 	});
 	projectField = $('#project');
+	projectField.val($repo);
 	projectField.change(function (evt) {
 	    setProject(projectField.val(), $dir);
 	});
 	dirField = $('#dir');
+	dirField.val($dir);
 	dirField.change(function (evt) {
 	    setProject($repo, dirField.val());
 	});
