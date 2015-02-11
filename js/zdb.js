@@ -524,7 +524,8 @@ var Josh = Josh || {};
 	    username = $('#username').val();
 	    $.session.set('connectaluser', username, 1);
 	});
-	$repo = $.session.get("connectalrepo");
+	if ($.session.get("connectalrepo")
+	    $repo = $.session.get("connectalrepo");
 	$project = $.session.get("connectalproject");
 	$dir = $.session.get("connectaldir");
 
