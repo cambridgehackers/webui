@@ -114,7 +114,7 @@ var Josh = Josh || {};
 	      writeToScreen('ERROR: ' + evt.data, callback);
 	  }
       };
-      function runStreamingShellCommand(cmd, cb, uri) {
+      function runStreamingShellCommand(cmd, cb, uri, rawtext) {
 	  if (!uri)
 	      uri = wsUri;
 	  _console.log('runStreamingShellCommand: ' + uri);
@@ -127,7 +127,6 @@ var Josh = Josh || {};
 	  websocket.onclose = function(evt) {
 	      _console.log('runStreamingShellCommand closed ' + cmd);
 	      _console.log('reason: ' + evt.reason + ' code: ' + evt.code + ' wasClean: ' + evt.wasClean);
-	      _console.log('onclose evt ' + evt + ' keys: ' + keys(evt));
 	      websocket.close();
 	      deferred.resolve();
 	  };
@@ -141,7 +140,9 @@ var Josh = Josh || {};
 		  data = data.slice(5);
 	      }
 	      var lines = data.split('\n');
-	      if (!prefix)
+	      if (rawtext)
+		  callback(lines);
+	      else if (!prefix)
 		  callback(itemTemplate({items:lines}));
 	      else
 		  callback(errItemTemplate({items:lines}));
@@ -302,6 +303,43 @@ var Josh = Josh || {};
 	      projectField.val($repo);
 	      dirField.val($dir);
 	  }
+	  runClone($repo, $dir);
+      };
+
+      var runClone = function(repourl, dir) {
+	  _console.log("running clone " + repourl + ' dir ' + dir);
+	  $buildView.empty();
+	  $buildPanel.slideDown();
+	  var filePanel = $('#file-panel');
+	  var fileView = $('#file-view');
+	  var fileList = $('#file-list');
+	  function callback(lines) {
+	      for (var i in lines) {
+		  var text = lines[i];
+		  _console.log('text: ' + text);
+		  if (text.indexOf('<file>') == 0) {
+		      var filename = text.slice(6);
+		      var uri = username + '/' + $project;
+		      if ($dir)
+			  uri = uri + $dir;
+		      uri = uri + '/' + filename;
+		      fileList.append('<li><a href="' + uri + '">' + filename + '</a></li>');
+		      filePanel.animate({'scrollTop': fileView.height()}, 10);
+		  }
+	      }
+	  }
+	  cmdinfo = {'cmd': 'clone.py',
+		     'repo': repourl,
+		     'dir': dir,
+		     'username': username,
+		     'branch': 'master'
+		    };
+	  cmd = JSON.stringify(cmdinfo);
+	  var d = runStreamingShellCommand(cmd, callback, wsUri, 1);
+	  d.done(function () {
+	  });
+	  d.fail(function () {
+	  });
       };
 
       var runBuild = function(repourl, dir) {
