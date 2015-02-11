@@ -315,9 +315,13 @@ var Josh = Josh || {};
 	      $buildView.append('<br>');
 	      $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
 	  }
-	  cmd = 'build.py "' + repourl + '"';
-	  if (dir)
-	    cmd = cmd + ' "' + dir + '"';
+	  cmdinfo = {'cmd': 'build.py',
+		     'repo': repourl,
+		     'dir': dir,
+		     'username': username,
+		     'branch': 'master'
+		    };
+	  cmd = JSON.stringify(cmdinfo);
 	  var d = runStreamingShellCommand(cmd, callback);
 	  buildButton.val('building...');
 	  d.done(function () {
