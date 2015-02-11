@@ -55,3 +55,15 @@ os.environ['CONNECTALDIR'] = '/usr/share/connectal'
 os.environ['PATH'] = os.environ['PATH'] + ':/scratch/Xilinx/Vivado/2014.1/bin'
 subprocess.call(['make', 'V=1', 'build.%s' % boardname])
 
+for pattern in ['*',
+                boardname + '/verilog/*',
+                boardname + '/jni/*',
+                boardname + '/sources/*/*',
+                boardname + '/bin/*',
+                boardname + '/Synth/*',
+                boardname + '/Impl/*/*']:
+    for f in glob.glob(pattern):
+        if os.path.isdir(f):
+            print '<dir>' + f
+        else:
+            print '<file>' + f
