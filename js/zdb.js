@@ -319,7 +319,7 @@ var Josh = Josh || {};
 		  _console.log('text: ' + text);
 		  if (text.indexOf('<file>') == 0) {
 		      var filename = text.slice(6);
-		      var uri = username + '/' + $project;
+		      var uri = 'https:' + $repo.slice(4) + '/blob/master';
 		      if ($dir)
 			  uri = uri + $dir;
 		      uri = uri + '/' + filename;
@@ -567,6 +567,8 @@ var Josh = Josh || {};
 	    $repo = $.session.get("connectalrepo");
 	$project = $.session.get("connectalproject");
 	$dir = $.session.get("connectaldir");
+	if ($dir === "undefined")
+	    $dir = "";
 
 	// The default name for the div the shell uses as its container is `shell-panel`, although that can be changed via
 	// the shell config parameter `shell-panel-id`. The `Shell` display model relies on a 'panel' to contain a 'view'.
@@ -656,6 +658,9 @@ var Josh = Josh || {};
 	var bareditor = ace.edit("bartxt");
 	bareditor.setTheme("ace/theme/monokai");
 	bareditor.getSession().setMode("ace/mode/verilog");
+
+	setProject($repo, $dir);
+
     });
 
   })(root, $, _);
