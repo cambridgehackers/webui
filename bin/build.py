@@ -53,7 +53,12 @@ if dirname:
 print os.curdir
 os.environ['LM_LICENSE_PATH'] = '27000@localhost'
 os.environ['CONNECTALDIR'] = '/usr/share/connectal'
-os.environ['PATH'] = os.environ['PATH'] + ':/scratch/Xilinx/Vivado/2014.1/bin'
+os.environ['PATH'] = (os.environ['PATH']
+                      + ':/scratch/Xilinx/Vivado/2014.1/bin'
+                      + ':/scratch/android-ndk-r9d'
+                      + ':/scratch/bluespec/Bluespec-2014.07.A/bin')
+os.environ['BLUESPECDIR'] = '/scratch/bluespec/Bluespec-2014.07.A/lib'
+
 subprocess.call(['make', 'V=1', 'build.%s' % boardname])
 
 for pattern in ['*',
