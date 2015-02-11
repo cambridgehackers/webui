@@ -19,6 +19,7 @@
 
 import os
 import sys
+import json
 
 from twisted.internet import reactor
 from twisted.python import log
@@ -91,7 +92,12 @@ class ShellServerProtocol(WebSocketServerProtocol):
            env = os.environ
            env['PATH'] = env['PATH'] + ':bin'
            env['LM_LICENSE_FILE'] = '27000@localhost'
-           reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env)
+           if payload.startswith('{'):
+               info = json.loads(payload)
+               cmd = info['cmd']
+               reactor.spawnProcess(self.wspp, cmd, args=[cmd, payload], env=env)
+           else:
+               reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env)
        elif protocol == 'push':
            self.f.write(payload)
        else:
