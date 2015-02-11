@@ -13,6 +13,7 @@ var Josh = Josh || {};
       var $editor;
       var $filename;
       var wsUri = 'ws' + root.location.origin.slice(4) + '/ws/';
+      var username;
       var deviceUri;
       var projectField;
       var dirField;
@@ -499,6 +500,25 @@ var Josh = Josh || {};
 
     // Activation and display behavior happens at document ready time.
     $(root).ready(function() {
+
+
+	var newusername = 'user' + Math.round(Math.random()*100000);
+	//$.session.set('connectaluser', newusername, 1);
+	username = $.session.get('connectaluser');
+	if (username)
+	    _console.log("username=" + username);
+	else {
+	    _console.log("setting username");
+	    username = newusername;
+	    $.session.set('connectaluser', username, 1);
+	}
+	$('#username').val(username);
+	$('#username').change(function (evt) {
+	    username = $('#username').val();
+	    $.session.set('connectaluser', username, 1);
+	});
+
+	_console.log(JSON.stringify(['build.py', username, '...']));
 
 	// The default name for the div the shell uses as its container is `shell-panel`, although that can be changed via
 	// the shell config parameter `shell-panel-id`. The `Shell` display model relies on a 'panel' to contain a 'view'.
