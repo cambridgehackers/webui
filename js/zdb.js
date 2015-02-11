@@ -387,8 +387,8 @@ var Josh = Josh || {};
       var runDevice = function(args) {
 	  var cmds = ['cd /mnt/sdcard',
 		      'rm -f android.exe mkTop.xdevcfg.bin.gz',
-		      'wget http://54.86.72.185/ui/' + $project + '/' + $dir + '/zedboard/bin/android.exe',
-		      'wget http://54.86.72.185/ui/' + $project + '/' + $dir + '/zedboard/bin/mkTop.xdevcfg.bin.gz',
+		      'wget http://54.86.72.185/ui/' + username + '/' + $project + '/' + $dir + '/zedboard/bin/android.exe',
+		      'wget http://54.86.72.185/ui/' + username + '/' + $project + '/' + $dir + '/zedboard/bin/mkTop.xdevcfg.bin.gz',
 		      'rmmod portalmem && insmod portalmem.ko',
 		      'rmmod zynqportal && insmod zynqportal.ko',
 		      'zcat mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && echo programmed',
