@@ -382,6 +382,7 @@ var Josh = Josh || {};
       var displayBuildLines = function(lines) {
 	  for (var i in lines)
 	      $buildView.append('<p>'+lines[i]+'</p>');
+	  $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
       }
 
       var runDevice = function(args) {
