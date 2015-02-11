@@ -272,7 +272,8 @@ var Josh = Josh || {};
           $shellPanel.blur();
       }
 
-      var $repo;
+      // a default project for a new user to build
+      var $repo = "git://github.com/zedblue/leds";
       var $project;
       var $dir;
       var setProject = function(repourl, dir, updateFields) {
@@ -524,7 +525,7 @@ var Josh = Josh || {};
 	    username = $('#username').val();
 	    $.session.set('connectaluser', username, 1);
 	});
-	if ($.session.get("connectalrepo")
+	if ($.session.get("connectalrepo"))
 	    $repo = $.session.get("connectalrepo");
 	$project = $.session.get("connectalproject");
 	$dir = $.session.get("connectaldir");
