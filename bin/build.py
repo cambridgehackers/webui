@@ -3,28 +3,55 @@
 import os
 import sys
 import subprocess
+import json
 
+repo = None
+dirname = None
+username = 'defaultuser'
+boardname = 'zedboard'
+branch = 'master'
 
-def updateRepo(url):
+def updateRepo(url, branch='master'):
     name = os.path.basename(url)
     if os.path.exists(name):
         os.chdir(name)
-        subprocess.call(['git', 'pull', 'origin', 'master'])
+        subprocess.call(['git', 'pull', 'origin', branch])
     else:
-        subprocess.call(['git', 'clone', url])
+        subprocess.call(['git', 'clone', url, '-b', branch])
         os.chdir(name)
 
+if sys.argv[1].startswith('{'):
+    info = json.loads(sys.argv[1])
+    print info
+    repo = info['repo']
+    if 'dir' in info:
+        dirname = info['dir']
+    if 'boardname' in info:
+        boardname = info['boardname']
+    if 'branch' in info:
+        branch = info['branch']
+else:
+    repo = sys.argv[1]
+    if len(sys.argv) > 2:
+        dirname = sys.argv[2]
 
-repo = sys.argv[1]
+if not os.path.isdir(username):
+    os.mkdir(username)
+os.chdir(username)
+
+print 'repo', repo
 if not '/' in repo:
+    print 'defaulting repo prefix', repo
     repo = 'git://github.com/cambridgehackers/' + repo
 if not repo.startswith('git://github.com'):
     repo = 'git://github.com' + repo
 updateRepo(repo)
-if len(sys.argv) > 2:
-    os.chdir(sys.argv[2])
+print 'dirname', dirname
+if dirname:
+    os.chdir(dirname)
+print os.curdir
 os.environ['LM_LICENSE_PATH'] = '27000@localhost'
 os.environ['CONNECTALDIR'] = '/usr/share/connectal'
 os.environ['PATH'] = os.environ['PATH'] + ':/scratch/Xilinx/Vivado/2014.1/bin'
-subprocess.call(['make', 'build.zedboard'])
+subprocess.call(['make', 'V=1', 'build.%s' % boardname])
 
