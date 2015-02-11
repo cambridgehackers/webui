@@ -31,6 +31,8 @@ if sys.argv[1].startswith('{'):
         boardname = info['boardname']
     if 'branch' in info:
         branch = info['branch']
+    if 'username' in info:
+        username = info['username']
 else:
     repo = sys.argv[1]
     if len(sys.argv) > 2:
@@ -51,7 +53,7 @@ print 'dirname', dirname
 if dirname:
     os.chdir(dirname)
 print os.curdir
-os.environ['LM_LICENSE_PATH'] = '27000@localhost'
+os.environ['LM_LICENSE_FILE'] = '27000@10.0.0.61'
 os.environ['CONNECTALDIR'] = '/usr/share/connectal'
 os.environ['PATH'] = (os.environ['PATH']
                       + ':/scratch/Xilinx/Vivado/2014.1/bin'
