@@ -7,6 +7,14 @@ CFLAGS = -O -g -I$(LIBWEBSOCKETS_LIB_DIR) -I$(LIBWEBSOCKETS_BUILD_DIR)
 
 LDFLAGS = -L$(LIBWEBSOCKETS_BUILD_DIR)/lib -lwebsockets
 
+all:
+
+server:
+	easy_install autobahn
+
+ace:
+	git clone git://github.com/ajaxorg/ace
+
 $(LIBWEBSOCKETS_DIR):
 	cd ..; git clone git://git.libwebsockets.org/libwebsockets
 
