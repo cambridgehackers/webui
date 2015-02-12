@@ -330,7 +330,7 @@ var Josh = Josh || {};
 			  uri = uri + '/' + $dir;
 		      uri = uri + '/' + filename;
 		      fileList.append('<li><a href="' + uri + '">' + filename + '</a></li>');
-		      filePanel.animate({'scrollTop': fileView.height()}, 10);
+		      filePanel.animate({'scrollTop': fileView.height()}, 1);
 		  }
 	      }
 	  }
@@ -407,6 +407,12 @@ var Josh = Josh || {};
       }
 
       var runDevice = function(args) {
+	  $buildView.empty();
+	  $buildPanel.slideDown();
+	  if (!deviceUri) {
+	      $buildView.append("<div>Error: Address of device is unknown.</div>");
+	      return;
+	  }
 	  var baseuri = 'http://54.86.72.185/ui/' + username + '/' + $project;
 	  if ($dir && ($dir !== 'undefined'))
 	      baseuri = baseuri + '/' + $dir;
@@ -434,8 +440,6 @@ var Josh = Josh || {};
 		  d.done(chainCommands);
 	      }
 	  }
-	  $buildView.empty();
-	  $buildPanel.slideDown();
 	  chainCommands();
       };
 
