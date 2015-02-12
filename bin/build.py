@@ -6,6 +6,9 @@ import subprocess
 import json
 import glob
 
+verbose = False
+listfiles = False
+
 repo = None
 dirname = None
 username = 'defaultuser'
@@ -23,7 +26,8 @@ def updateRepo(url, branch='master'):
 
 if sys.argv[1].startswith('{'):
     info = json.loads(sys.argv[1])
-    print info
+    if verbose:
+        print info
     repo = info['repo']
     if 'dir' in info:
         dirname = info['dir']
@@ -33,6 +37,8 @@ if sys.argv[1].startswith('{'):
         branch = info['branch']
     if 'username' in info:
         username = info['username']
+    if 'listfiles' in info:
+        listfiles = info['listfiles']
 else:
     repo = sys.argv[1]
     if len(sys.argv) > 2:
@@ -42,17 +48,21 @@ if not os.path.isdir(username):
     os.mkdir(username)
 os.chdir(username)
 
-print 'repo', repo
+if verbose:
+    print 'repo', repo
 if not '/' in repo:
-    print 'defaulting repo prefix', repo
+    if verbose:
+        print 'defaulting repo prefix', repo
     repo = 'git://github.com/cambridgehackers/' + repo
 if not repo.startswith('git://github.com'):
     repo = 'git://github.com' + repo
 updateRepo(repo)
-print 'dirname', dirname
+if verbose:
+    print 'dirname', dirname
 if dirname:
     os.chdir(dirname)
-print os.curdir
+if verbose:
+    print os.curdir
 os.environ['LM_LICENSE_FILE'] = '27000@10.0.0.61'
 os.environ['CONNECTALDIR'] = '/usr/share/connectal'
 os.environ['PATH'] = (os.environ['PATH']
@@ -63,17 +73,18 @@ os.environ['BLUESPECDIR'] = '/scratch/bluespec/Bluespec-2014.07.A/lib'
 
 exitcode = subprocess.call(['make', 'V=1', 'build.%s' % boardname])
 
-for pattern in ['*',
-                boardname + '/verilog/*',
-                boardname + '/jni/*',
-                boardname + '/sources/*/*',
-                boardname + '/bin/*',
-                boardname + '/Synth/*',
-                boardname + '/Impl/*/*']:
-    for f in glob.glob(pattern):
-        if os.path.isdir(f):
-            print '<dir>' + f
-        else:
-            print '<file>' + f
+if listfiles:
+    for pattern in ['*',
+                    boardname + '/verilog/*',
+                    boardname + '/jni/*',
+                    boardname + '/sources/*/*',
+                    boardname + '/bin/*',
+                    boardname + '/Synth/*',
+                    boardname + '/Impl/*/*']:
+        for f in glob.glob(pattern):
+            if os.path.isdir(f):
+                print '<dir>' + f
+            else:
+                print '<file>' + f
 
 sys.exit(exitcode)
