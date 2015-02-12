@@ -416,15 +416,13 @@ var Josh = Josh || {};
 	  var baseuri = 'http://54.86.72.185/ui/' + username + '/' + $project;
 	  if ($dir && ($dir !== 'undefined'))
 	      baseuri = baseuri + '/' + $dir;
-	  var cmds = ['cd /mnt/sdcard',
-		      'rm -f /mnt/sdcard/android.exe /mnt/sdcard/mkTop.xdevcfg.bin.gz',
-		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/android.exe',
-		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/mkTop.xdevcfg.bin.gz',
+	  var cmds = ['rm -f /mnt/sdcard/android.exe /mnt/sdcard/mkTop.xdevcfg.bin.gz',
+		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/android.exe 2>&1',
+		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/mkTop.xdevcfg.bin.gz 2>&1',
+		      'chmod agu+rx /mnt/sdcard/android.exe',
 		      'rmmod portalmem && insmod /mnt/sdcard/portalmem.ko',
 		      'rmmod zynqportal && insmod /mnt/sdcard/zynqportal.ko',
-		      'zcat /mnt/sdcard/mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && echo programmed',
-		      'chmod agu+rx /mnt/sdcard/android.exe',
-		      'ls -l /mnt/sdcard /dev/portal*',
+		      'zcat /mnt/sdcard/mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && echo logic programmed',
 		      '/mnt/sdcard/android.exe 2>&1'
 		     ];
 	  var deferreds = [];
