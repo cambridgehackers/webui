@@ -20,6 +20,9 @@
 import os
 import sys
 import json
+import irc
+
+irclog = None
 
 import twisted
 from twisted.internet import reactor
@@ -101,6 +104,8 @@ class ShellServerProtocol(WebSocketServerProtocol):
                info = json.loads(payload)
                cmd = info['cmd']
                self.cmd = cmd
+               if irclog:
+                   irclog.sendMsg('%(cmd)s %(username)s %(repo)s %(boardname)s' % info)
                self.process = reactor.spawnProcess(self.wspp, cmd, args=[cmd, payload], env=env)
            else:
                self.cmd = payload
@@ -130,6 +135,8 @@ if __name__ == '__main__':
       debug = True
    else:
       debug = False
+
+   irclog = irc.LogBotFactory('#asic-builds', 'irclog.txt')
 
    factory = WebSocketServerFactory("ws://localhost:7682/",
                                     debug = debug,
