@@ -71,7 +71,8 @@ os.environ['PATH'] = (os.environ['PATH']
                       + ':/scratch/bluespec/Bluespec-2014.07.A/bin')
 os.environ['BLUESPECDIR'] = '/scratch/bluespec/Bluespec-2014.07.A/lib'
 
-exitcode = subprocess.call(['make', 'V=1', 'build.%s' % boardname])
+#exitcode = subprocess.call(['make', 'V=1', 'build.%s' % boardname])
+exitcode = subprocess.call(['make', 'build.%s' % boardname])
 
 if listfiles:
     for pattern in ['*',
