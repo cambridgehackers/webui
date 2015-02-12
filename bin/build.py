@@ -61,7 +61,7 @@ os.environ['PATH'] = (os.environ['PATH']
                       + ':/scratch/bluespec/Bluespec-2014.07.A/bin')
 os.environ['BLUESPECDIR'] = '/scratch/bluespec/Bluespec-2014.07.A/lib'
 
-subprocess.call(['make', 'V=1', 'build.%s' % boardname])
+exitcode = subprocess.call(['make', 'V=1', 'build.%s' % boardname])
 
 for pattern in ['*',
                 boardname + '/verilog/*',
@@ -75,3 +75,5 @@ for pattern in ['*',
             print '<dir>' + f
         else:
             print '<file>' + f
+
+sys.exit(exitcode)
