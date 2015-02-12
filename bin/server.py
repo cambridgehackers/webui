@@ -105,7 +105,13 @@ class ShellServerProtocol(WebSocketServerProtocol):
                cmd = info['cmd']
                self.cmd = cmd
                if irclog:
-                   irclog.sendMsg('%(cmd)s %(username)s %(repo)s %(boardname)s' % info)
+                   try:
+                       msg = '%(cmd)s %(username)s %(repo)s %(boardname)s' % info
+                       msg = msg.encode('ascii')
+                       print type(msg), msg
+                       irclog.sendMsg(msg)
+                   except:
+                       pass
                self.process = reactor.spawnProcess(self.wspp, cmd, args=[cmd, payload], env=env)
            else:
                self.cmd = payload
@@ -137,6 +143,7 @@ if __name__ == '__main__':
       debug = False
 
    irclog = irc.LogBotFactory('#asic-builds', 'irclog.txt')
+   reactor.connectTCP("irc.freenode.net", 6667, irclog)
 
    factory = WebSocketServerFactory("ws://localhost:7682/",
                                     debug = debug,
