@@ -12,6 +12,9 @@ all:
 server:
 	easy_install autobahn
 
+runserver:
+	nohup ./bin/server.py > server.log 2> server.errlog &
+
 ace:
 	git clone git://github.com/ajaxorg/ace
 
