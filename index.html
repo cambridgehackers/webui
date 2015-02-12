@@ -81,23 +81,23 @@
 </div>
 
 <p>
-<label>User name</label> <input id="username" value=""></input>
+<label>User name</label> <input id="username" title="use provided username or choose your own" value=""></input>
 <p>
 <form action="#">
   <fieldset>
-    <label for="project">Repository</label> <input id="project" value="git://github.com/zedblue/leds"></input>
-    <label for="dir">Directory</label> <input id="dir" value=""></input>
+    <label for="project">Repository</label> <input id="project" value="git://github.com/zedblue/leds" title="github repository of source code"></input>
+    <label for="dir">Directory</label> <input id="dir" title="subdirectory of repo to build" value=""></input>
     <label for="boardname">Select a target</label>
     <select name="boardname" id="boardname">
       <option selected="selected">zedboard</option>
     </select>
-    <label for="network_prefix">Network prefix of device</label><input id="network_prefix" value="192.168.168.100"/>
+    <label for="network_prefix">Network prefix of device</label><input id="network_prefix" title="base of address range to probe" value="192.168.168.100"/>
   </fieldset>
 </form>
-<input id="build_button" value="Build"/>
+<input id="build_button" value="Build" title="start building application"/>
 <input id="discover_button" value="Probe Device Address"/>
-<input id="run_button" value="Run"/>
-<div id="progressbar"></div>
+<input id="run_button" value="Run" title = "run application on target device"/>
+<div id="progressbar" "progress of build"></div>
 <p>
 <div id="tabs">
 <ul>

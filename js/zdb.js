@@ -577,7 +577,7 @@ var Josh = Josh || {};
 
     // Activation and display behavior happens at document ready time.
     $(root).ready(function() {
-
+	$(document).tooltip();
 
 	var newusername = 'user' + Math.round(Math.random()*100000);
 	//$.session.set('connectaluser', newusername, 1);
