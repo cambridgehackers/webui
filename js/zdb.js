@@ -368,7 +368,11 @@ var Josh = Josh || {};
 	      repourl = $repo;
 	      dir = $dir;
 	  }	  
-	  _console.log("running build " + repourl + ' dir ' + dir);
+	  var boardname = $('#boardname').val();
+	  var branch = $('#branch').val();
+	  if (!branch)
+	      branch = 'master';
+	  _console.log("running build " + repourl + ' dir ' + dir + ' target ' + boardname);
 	  $buildView.empty();
 	  $buildPanel.slideDown();
 	  function callback(text) {
@@ -385,7 +389,8 @@ var Josh = Josh || {};
 		     'repo': repourl,
 		     'dir': dir,
 		     'username': username,
-		     'branch': 'master'
+		     'branch': branch,
+		     'boardname': boardname
 		    };
 	  cmd = JSON.stringify(cmdinfo);
 	  var d = runStreamingShellCommand(cmd, callback);
@@ -397,6 +402,50 @@ var Josh = Josh || {};
 	  });
 	  d.fail(function () {
 	      buildButton.val('Build');
+	  });
+      };
+
+      var runBluesim = function(repourl, dir) {
+	  if (repourl) {
+	      setProject(repourl, dir, 1);
+	  } else {
+	      repourl = $repo;
+	      dir = $dir;
+	  }	  
+	  var boardname = $('#boardname').val();
+	  var branch = $('#branch').val();
+	  if (!branch)
+	      branch = 'master';
+	  _console.log("running bluesim " + repourl + ' dir ' + dir + ' target ' + boardname);
+	  $buildView.empty();
+	  $buildPanel.slideDown();
+	  function callback(text) {
+	      for (var key in progressLevels) {
+		  var level = progressLevels[key];
+		  if (text.indexOf(key) >= 0)
+		      buildProgress.progressbar("option", "value", level);
+	      }
+	      $buildView.append(text);
+	      $buildView.append('<br>');
+	      $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
+	  }
+	  cmdinfo = {'cmd': 'run.py',
+		     'repo': repourl,
+		     'dir': dir,
+		     'username': username,
+		     'branch': branch,
+		     'boardname': boardname
+		    };
+	  cmd = JSON.stringify(cmdinfo);
+	  var d = runStreamingShellCommand(cmd, callback);
+	  runButton.val('running...');
+	  buildProgress.progressbar("option", "value", false);
+	  d.done(function () {
+	      buildProgress.progressbar("option", "value", true);
+	      runButton.val('Run');
+	  });
+	  d.fail(function () {
+	      runButton.val('Run');
 	  });
       };
 
@@ -499,7 +548,13 @@ var Josh = Josh || {};
       shell.setCommandHandler("run", {
 	  exec: function(cmd, args, callback) {
 	      callback("");
-	      runDevice(args);
+	      var boardname = $('#boardname').val();
+	      _console.log('boardname=' + boardname);
+	      if (boardname == 'bluesim') {
+		  runBluesim(args);
+	      } else {
+		  runDevice(args);
+	      }
 	  }
       });
       shell.setCommandHandler("exit", {
@@ -662,9 +717,15 @@ var Josh = Josh || {};
 	runButton = $('#run_button');
 	runButton.button().click(function(evt) {
 	    evt.preventDefault();
-	    if (!deviceUri)
-		probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
-	    runDevice($project, $dir);
+	      var boardname = $('#boardname').val();
+	      _console.log('boardname=' + boardname);
+	      if (boardname == 'bluesim') {
+		  runBluesim($project, $dir);
+	      } else {
+		  if (!deviceUri)
+		      probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
+		  runDevice($project, $dir);
+	      }
 	});
 	buildProgress = $('#progressbar');
 	buildProgress.progressbar({value: 0});

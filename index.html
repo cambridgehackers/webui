@@ -93,9 +93,11 @@
   <fieldset>
     <label for="project">Repository</label> <input id="project" value="git://github.com/zedblue/leds" title="github repository of source code"></input>
     <label for="dir">Directory</label> <input id="dir" title="subdirectory of repo to build" value=""></input>
+    <label for="branch">Branch</label> <input id="branch" title="branch of repo to build" value="master"></input>
     <label for="boardname">Select a target</label>
     <select name="boardname" id="boardname">
       <option selected="selected">zedboard</option>
+      <option>bluesim</option>
     </select>
     <label for="network_prefix">Network prefix of device</label><input id="network_prefix" title="base of address range to probe" value="192.168.168.100"/>
   </fieldset>
