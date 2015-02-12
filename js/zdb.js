@@ -314,6 +314,7 @@ var Josh = Josh || {};
 	  var filePanel = $('#file-panel');
 	  var fileView = $('#file-view');
 	  var fileList = $('#file-list');
+	  var boardname = $('#boardname').val();
 	  fileList.empty();
 	  function callback(lines) {
 	      for (var i in lines) {
@@ -338,7 +339,8 @@ var Josh = Josh || {};
 		     'repo': repourl,
 		     'dir': dir,
 		     'username': username,
-		     'branch': 'master'
+		     'branch': 'master',
+		     'boardname': boardname
 		    };
 	  cmd = JSON.stringify(cmdinfo);
 	  var d = runStreamingShellCommand(cmd, callback, wsUri, 1);
@@ -441,7 +443,7 @@ var Josh = Josh || {};
 	  runButton.val('running...');
 	  buildProgress.progressbar("option", "value", false);
 	  d.done(function () {
-	      buildProgress.progressbar("option", "value", true);
+	      buildProgress.progressbar("option", "value", 100);
 	      runButton.val('Run');
 	  });
 	  d.fail(function () {
