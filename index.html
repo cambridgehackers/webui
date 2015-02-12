@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Shell testbed</title>
+    <title>Connectal IDE</title>
 
     <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/ui-lightness/jquery-ui.css">
@@ -120,6 +120,33 @@ module mkBar();
 endmodule
 </div>
 </div>
+
+<h2>Instructions</h2>
+
+<ul>
+<li>
+  See
+  the <a href="https://github.com/cambridgehackers/zynq-boot/blob/master/README.md">zynq-boot
+  README</a> for directions on preparing your Zynq board for use with
+  Connectal.
+</li>
+
+<li>Use repository field to specify which git project to clone for
+your application. Once the repository is specified, the files for the
+application will be listed below.</li>
+
+<li>If the repository contains multiple applications, specify the subdirectory.</li>
+
+<li>Press the "Build" button to start the build.</li>
+
+<li>When the build completes successfully, specify the IP address of
+your Zynq device. Ten addresses are probed, so on a home network
+providing the IP address of your PC will probably be close
+enough.</li>
+
+<li>Press the "Run" button to run your application on your board.</li>
+
+</ul>
 
 <h2>Build/Run Output</h2>
 <div id="build-panel">
