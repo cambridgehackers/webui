@@ -18,6 +18,7 @@ var Josh = Josh || {};
       var projectField;
       var dirField;
       var buildButton;
+      var buildProgress;
       var networkPrefixField;
       var discoverButton;
       var runButton;
@@ -347,6 +348,19 @@ var Josh = Josh || {};
 	  });
       };
 
+      var progressLevels = {
+	  "makefilegen.py": 1,
+	  "touch syntax.timestamp": 5,
+	  'BSCVERILOG': 10,
+	  '/usr/share/connectal/../fpgamake/fpgamake': 15,
+	  'synth_design': 20,
+	  'link_design -top mkZynqTop': 30,
+	  'opt_design': 35,
+	  'place_design': 45,
+	  'phys_opt_design': 60,
+	  'route_design': 80,
+	  'write_bitstream -bin_file -force Impl/TopDown/mkTop.bit': 90
+      };
       var runBuild = function(repourl, dir) {
 	  if (repourl) {
 	      setProject(repourl, dir, 1);
@@ -358,6 +372,11 @@ var Josh = Josh || {};
 	  $buildView.empty();
 	  $buildPanel.slideDown();
 	  function callback(text) {
+	      for (var key in progressLevels) {
+		  var level = progressLevels[key];
+		  if (text.indexOf(key) >= 0)
+		      buildProgress.progressbar("option", "value", level);
+	      }
 	      $buildView.append(text);
 	      $buildView.append('<br>');
 	      $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
@@ -371,7 +390,9 @@ var Josh = Josh || {};
 	  cmd = JSON.stringify(cmdinfo);
 	  var d = runStreamingShellCommand(cmd, callback);
 	  buildButton.val('building...');
+	  buildProgress.progressbar("option", "value", 0);
 	  d.done(function () {
+	      buildProgress.progressbar("option", "value", 100);
 	      buildButton.val('Build');
 	  });
 	  d.fail(function () {
@@ -641,6 +662,8 @@ var Josh = Josh || {};
 		probeAddr(networkPrefixField.val(), 7682, $discoveryPanel, function() {});
 	    runDevice($project, $dir);
 	});
+	buildProgress = $('#progressbar');
+	buildProgress.progressbar({value: 0});
 	networkPrefixField = $('#network_prefix');
 	networkPrefixField.change(function (evt) {
 	    _console.log('probing addr ' + networkPrefixField.val());
