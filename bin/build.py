@@ -75,11 +75,15 @@ exitcode = subprocess.call(['make', 'V=1', 'build.%s' % boardname])
 
 if listfiles:
     for pattern in ['*',
+                    boardname + '/Makefile',
+                    boardname + '/*.mk',
                     boardname + '/verilog/*',
                     boardname + '/jni/*',
                     boardname + '/sources/*/*',
+                    boardname + '/constraints/*',
+                    boardname + '/obj/*',
                     boardname + '/bin/*',
-                    boardname + '/Synth/*',
+                    boardname + '/Synth/*/*',
                     boardname + '/Impl/*/*']:
         for f in glob.glob(pattern):
             if os.path.isdir(f):
