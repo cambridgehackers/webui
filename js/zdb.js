@@ -614,6 +614,8 @@ var Josh = Josh || {};
 	// We use **jquery-ui**'s `resizable` to let us drag the bottom edge of the console up and down.
 	$shellPanel.resizable();
 	$buildPanel.resizable();
+	$buildPanel.resizable();
+	$('#file-panel').resizable();
 
 	// Wire up a the keypress handler. This will be used only for shell activation.
 	if (1) {
