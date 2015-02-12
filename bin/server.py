@@ -21,6 +21,7 @@ import os
 import sys
 import json
 
+import twisted
 from twisted.internet import reactor
 from twisted.python import log
 from twisted.web.server import Site
@@ -53,7 +54,10 @@ class WSProcessProtocol(protocol.ProcessProtocol):
         print '<err>'+data
         self.ssp.sendMessage('<err>'+data, self.isBinary)
     def processExited(self, status):
-        self.ssp.sendMessage('<status>%d' % status.value.exitCode, self.isBinary)
+        try:
+            self.ssp.sendMessage('<status>%d' % status.value.exitCode, self.isBinary)
+        except:
+            self.ssp.sendMessage('<status>%s' % status.value, self.isBinary)
         print 'processExited', status
         self.ssp.sendClose()
         self.active = False
@@ -64,6 +68,7 @@ class ShellServerProtocol(WebSocketServerProtocol):
       print("WebSocket connection request: {}".format(request))
       self.cmd = None
       self.f = None
+      self.process = None
       protocol = self.websocket_protocols[0]
       if protocol == 'push' or protocol == 'pull':
           filename = request.path
@@ -95,16 +100,26 @@ class ShellServerProtocol(WebSocketServerProtocol):
            if payload.startswith('{'):
                info = json.loads(payload)
                cmd = info['cmd']
-               reactor.spawnProcess(self.wspp, cmd, args=[cmd, payload], env=env)
+               self.cmd = cmd
+               self.process = reactor.spawnProcess(self.wspp, cmd, args=[cmd, payload], env=env)
            else:
-               reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env)
+               self.cmd = payload
+               self.process = reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env)
+           print 'spawned process %s' % self.cmd
        elif protocol == 'push':
            self.f.write(payload)
        else:
            pass
 
-   def onCloseFoo(self, wasClean, code, reason):
+   def onClose(self, wasClean, code, reason):
        print 'onClose', wasClean, code, reason
+       if self.process:
+           try:
+               print 'sending SIGTERM to process %s' % self.cmd
+               self.process.signalProcess("TERM")
+               print 'terminated process %s' % self.cmd
+           except twisted.internet.error.ProcessExitedAlready:
+               pass
        if self.f:
            self.f.close()
 
