@@ -80,9 +80,6 @@ int forkSubprocess(struct subprocess *sp, char * const argv[])
     close(outputPipeFd[0]);
     close(errorPipeFd[0]);
 
-    //outputPipeFd[1] = open("/mnt/sdcard/stdout.txt", O_WRONLY|O_APPEND|O_CREAT);
-    //errorPipeFd[1] = open("/mnt/sdcard/stderr.txt", O_WRONLY|O_APPEND|O_CREAT);
-
     dup2(inputPipeFd[0], 0);
     dup2(outputPipeFd[1], 1);
     dup2(errorPipeFd[1], 2);
@@ -101,9 +98,6 @@ int forkSubprocess(struct subprocess *sp, char * const argv[])
 #endif
 
   } else {
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] cmd=%s pid=%d errno=%d\n", __FUNCTION__, __LINE__, argv[0], sp->pid, errno);
-#endif
     close(inputPipeFd[0]);
     close(outputPipeFd[1]);
     close(errorPipeFd[1]);
@@ -171,12 +165,12 @@ callback_pull(struct libwebsocket_context *context,
     } break;
 
     case LWS_CALLBACK_SERVER_WRITEABLE: {
-	fprintf(stderr, "pull server writeable\n");
+	//fprintf(stderr, "pull server writeable\n");
 	while (1) {
 	  if (pss->len == 0 && pss->fd) {
 	    pss->len = read(pss->fd, &pss->buf[LWS_SEND_BUFFER_PRE_PADDING], MAX_ZEDBOARD_PAYLOAD);
 	  }
-	  fprintf(stderr, "    now pss->len=%d\n", pss->len);
+	  //fprintf(stderr, "    now pss->len=%d\n", pss->len);
 
 	  if (pss->len)
 	    n = libwebsocket_write(wsi, &pss->buf[LWS_SEND_BUFFER_PRE_PADDING], pss->len, LWS_WRITE_TEXT);
@@ -191,8 +185,7 @@ callback_pull(struct libwebsocket_context *context,
 	    return -1;
 	  }
 	  pss->len -= n;
-	  fprintf(stderr, "   wrote {%s}\n", &pss->buf[LWS_SEND_BUFFER_PRE_PADDING]);
-	  fprintf(stderr, "   wrote %d pss->len = %ld\n", n, pss->len);
+	  //fprintf(stderr, "   wrote %d pss->len = %ld\n", n, pss->len);
 
 	  if (lws_partial_buffered(wsi) || lws_send_pipe_choked(wsi)) {
 	    fprintf(stderr, "calling libwebsocket_callback_on_writable\n");
@@ -216,11 +209,9 @@ callback_pull(struct libwebsocket_context *context,
 	break;
 
     case LWS_CALLBACK_ESTABLISHED:
-	fprintf(stderr, "pull connection established\n");
 	break;
 
     case LWS_CALLBACK_CLOSED:
-	fprintf(stderr, "pull connection closed\n");
 	if (pss->fd >= 0) {
 	    close(pss->fd);
 	    pss->fd = -1;
@@ -244,10 +235,8 @@ callback_push(struct libwebsocket_context *context,
     switch (reason) {
     case LWS_CALLBACK_FILTER_PROTOCOL_CONNECTION: {
 	int urilen = lws_hdr_total_length(wsi, WSI_TOKEN_GET_URI);
-	fprintf(stderr, "uri hdr len %d\n", urilen);
 	char uri[256];
 	lws_hdr_copy(wsi, uri, sizeof(uri), WSI_TOKEN_GET_URI);
-	fprintf(stderr, "uri %s\n", uri);
 	pss->fd = open(uri, O_WRONLY|O_CREAT, 0644);
     } break;
 
@@ -266,11 +255,9 @@ callback_push(struct libwebsocket_context *context,
 	break;
 
     case LWS_CALLBACK_ESTABLISHED:
-	fprintf(stderr, "push connection established\n");
 	break;
 
     case LWS_CALLBACK_CLOSED:
-	fprintf(stderr, "push connection closed\n");
 	break;
 
     default:
@@ -289,7 +276,6 @@ callback_shell(struct libwebsocket_context *context,
     int n = 0;
     switch (reason) {
     case LWS_CALLBACK_SERVER_WRITEABLE:
-      //fprintf(stderr, "shell server writeable pss->len=%ld pipe=%p\n", pss->len, pss->pipe);
 
 #ifndef USE_POPEN
       if (pss->len == 0 && pss->subprocess.statusSent) {
@@ -347,8 +333,6 @@ callback_shell(struct libwebsocket_context *context,
 	    }
 	  }
 #endif
-	  if (pss->len)
-	    fprintf(stderr, "    now pss->len=%ld\n", pss->len);
 
 	  if (pss->len)
 	    n = libwebsocket_write(wsi, &pss->buf[LWS_SEND_BUFFER_PRE_PADDING], pss->len, LWS_WRITE_TEXT);
@@ -371,7 +355,6 @@ callback_shell(struct libwebsocket_context *context,
 	    return -1;
 	  }
 	  pss->len -= n;
-	  fprintf(stderr, "   wrote {%s}\n", &pss->buf[LWS_SEND_BUFFER_PRE_PADDING]);
 	  fprintf(stderr, "   wrote %d pss->len = %ld\n", n, pss->len);
 #ifdef ANDROID
 	  __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] wrote %d pss->len=%d\n", __FUNCTION__, __LINE__, n, pss->len);
@@ -420,7 +403,6 @@ callback_shell(struct libwebsocket_context *context,
 	break;
 
     case LWS_CALLBACK_ESTABLISHED: {
-	fprintf(stderr, "shell connection established\n");
 #ifdef ANDROID
 	  __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] shell connection established\n", __FUNCTION__, __LINE__);
 #endif
