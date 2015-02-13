@@ -9,14 +9,15 @@ LDFLAGS = -L$(LIBWEBSOCKETS_BUILD_DIR)/lib -lwebsockets
 
 all:
 
-server:
+server: ace
 	easy_install autobahn
 
-runserver:
+runserver: server
 	nohup ./bin/server.py > server.log 2> server.errlog &
 
 ace:
 	git clone git://github.com/ajaxorg/ace
+	git clone git://github.com/ajaxorg/ace-builds
 
 $(LIBWEBSOCKETS_DIR):
 	cd ..; git clone git://git.libwebsockets.org/libwebsockets
