@@ -7,6 +7,7 @@ var Josh = Josh || {};
       }
     };
 
+      var buildServerAddress = '54.86.72.185';
       var $shellPanel;
       var $discoveryPanel;
       var $buildPanel, $buildView;
@@ -266,7 +267,7 @@ var Josh = Josh || {};
 
     function runDiscovery(addr, shellCallback) {
 	var i;
-	var netaddrs = ['192.168.168.100', '192.168.1.100', '54.86.72.185', '172.17.1.200'];
+	var netaddrs = ['192.168.168.100', '192.168.1.100', '172.17.1.200'];
 	if (addr)
 	    netaddrs = [addr];
 	for (n in netaddrs) {
@@ -500,7 +501,7 @@ var Josh = Josh || {};
 	      $buildView.append("<div>Error: Address of device is unknown.</div>");
 	      return;
 	  }
-	  var baseuri = 'http://54.86.72.185/ui/' + username + '/' + $project;
+	  var baseuri = 'http://' + buildServerAddress + '/ui/' + username + '/' + $project;
 	  if ($dir && ($dir !== 'undefined'))
 	      baseuri = baseuri + '/' + $dir;
 	  var cmds = ['rm -f /mnt/sdcard/android.exe /mnt/sdcard/mkTop.xdevcfg.bin.gz',
