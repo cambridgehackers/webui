@@ -504,13 +504,13 @@ var Josh = Josh || {};
 	  if ($dir && ($dir !== 'undefined'))
 	      baseuri = baseuri + '/' + $dir;
 	  var cmds = ['rm -f /mnt/sdcard/android.exe /mnt/sdcard/mkTop.xdevcfg.bin.gz',
-		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/android.exe 2>&1',
-		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/mkTop.xdevcfg.bin.gz 2>&1',
+		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/android.exe',
+		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/mkTop.xdevcfg.bin.gz',
 		      'chmod agu+rx /mnt/sdcard/android.exe',
 		      'rmmod portalmem && insmod /mnt/sdcard/portalmem.ko',
 		      'rmmod zynqportal && insmod /mnt/sdcard/zynqportal.ko',
 		      'zcat /mnt/sdcard/mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && echo logic programmed',
-		      '/mnt/sdcard/android.exe 2>&1'
+		      '/mnt/sdcard/android.exe'
 		     ];
 	  var deferreds = [];
 	  function chainCommands() {
