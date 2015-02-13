@@ -1,3 +1,9 @@
+##
+## Install nginx
+## Install this file in /etc/nginx/sites-enabled/proxy
+## Remove /etc/nginx/site-enabled/default
+## killall -HUP nginx
+
 server {
     root /home/ubuntu/webui;
 
