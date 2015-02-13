@@ -394,18 +394,8 @@ callback_shell(struct libwebsocket_context *context,
 	if (pss->pipe == 0)
 	    fprintf(stderr, "Failed to open pipe %d:%s\n", errno, strerror(errno));
 #else
-	const char *androidexe = "/mnt/sdcard/android.exe";
-#ifdef ANDROID
-	  __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] in={%s} %d\n", __FUNCTION__, __LINE__,
-			      in, strncmp(in, androidexe, strlen(androidexe)));
-#endif
-	if (strncmp(in, androidexe, strlen(androidexe)) == 0) {
-	  char * const argv[] = { (char *)androidexe, NULL };
-	  forkSubprocess(&pss->subprocess, argv);
-	} else {
-	  char * const argv[] = { "sh", "-c", (char *)in, NULL };
-	  forkSubprocess(&pss->subprocess, argv);
-	}
+	char * const argv[] = { "sh", "-c", (char *)in, NULL };
+	forkSubprocess(&pss->subprocess, argv);
 #endif
 	pss->len = 0;
 	libwebsocket_callback_on_writable(context, wsi);
