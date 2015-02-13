@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -10,6 +11,10 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#ifdef ANDROID
+#define F_SETPIPE_SZ (F_LINUX_SPECIFIC_BASE + 7)
+#define F_GETPIPE_SZ (F_LINUX_SPECIFIC_BASE + 8)
+#endif
 #include <unistd.h>
 #include <errno.h>
 #include <poll.h>
@@ -73,6 +78,10 @@ int forkSubprocess(struct subprocess *sp, char * const argv[])
   status = pipe(outputPipeFd);
   status = pipe(errorPipeFd);
   sp->pid = fork();
+
+  // try to improve responsiveness of the shell
+  fcntl(outputPipeFd[1], F_SETPIPE_SZ, 4096);
+  fcntl(errorPipeFd[1], F_SETPIPE_SZ, 4096);
 
   if (sp->pid == 0) {
     // child process
