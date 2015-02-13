@@ -191,6 +191,7 @@ callback_pull(struct libwebsocket_context *context,
 	    return -1;
 	  }
 	  pss->len -= n;
+	  fprintf(stderr, "   wrote {%s}\n", &pss->buf[LWS_SEND_BUFFER_PRE_PADDING]);
 	  fprintf(stderr, "   wrote %d pss->len = %ld\n", n, pss->len);
 
 	  if (lws_partial_buffered(wsi) || lws_send_pipe_choked(wsi)) {
@@ -333,11 +334,13 @@ callback_shell(struct libwebsocket_context *context,
 	      for (i = 1; i >= 0; i--) {
 		if (pollfd[i].revents & POLLIN) {
 		  int offset = 0;
+		  memset(&pss->buf[LWS_SEND_BUFFER_PRE_PADDING], 0, MAX_ZEDBOARD_PAYLOAD);
 		  if (i == 1) {
 		    offset = 5;
 		    strncpy(&pss->buf[LWS_SEND_BUFFER_PRE_PADDING], "<err>", offset);
 		  }
 		  pss->len = read(pollfd[i].fd, &pss->buf[LWS_SEND_BUFFER_PRE_PADDING+offset], MAX_ZEDBOARD_PAYLOAD-offset);
+		  pss->len += offset;
 		  break;
 		}
 	      }
@@ -368,6 +371,7 @@ callback_shell(struct libwebsocket_context *context,
 	    return -1;
 	  }
 	  pss->len -= n;
+	  fprintf(stderr, "   wrote {%s}\n", &pss->buf[LWS_SEND_BUFFER_PRE_PADDING]);
 	  fprintf(stderr, "   wrote %d pss->len = %ld\n", n, pss->len);
 #ifdef ANDROID
 	  __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] wrote %d pss->len=%d\n", __FUNCTION__, __LINE__, n, pss->len);
@@ -432,10 +436,10 @@ callback_shell(struct libwebsocket_context *context,
 #ifdef ANDROID
 	  __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] closing pid %d\n", __FUNCTION__, __LINE__, pss->subprocess.pid);
 #endif
-	  //kill(SIGTERM, pss->subprocess.pid);
+	  kill(SIGTERM, pss->subprocess.pid);
 	  close(pss->subprocess.input);
-	  //close(pss->subprocess.output);
-	  //close(pss->subprocess.error);
+	  close(pss->subprocess.output);
+	  close(pss->subprocess.error);
 	  waitpid(pss->subprocess.pid, &pss->subprocess.exitCode, 0);
 	}
 	break;
