@@ -1,11 +1,13 @@
 ##
+## Update location of webui below
 ## Install nginx
 ## Install this file in /etc/nginx/sites-enabled/proxy
 ## Remove /etc/nginx/site-enabled/default
 ## killall -HUP nginx
 
 server {
-    root /home/ubuntu/webui;
+    
+    root /path/to/webui;
 
     location /ui {
         try_files $uri $uri 404;
