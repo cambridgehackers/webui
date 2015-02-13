@@ -122,6 +122,7 @@ var Josh = Josh || {};
 	  var callback = cb;
 	  var websocket = new WebSocket(uri, 'shell');
 	  var deferred = $.Deferred();
+	  var fragment = {};
 	  websocket.onopen = function(evt) {
 	      websocket.send(cmd);
 	  };
@@ -129,25 +130,49 @@ var Josh = Josh || {};
 	      _console.log('runStreamingShellCommand closed ' + cmd);
 	      _console.log('reason: ' + evt.reason + ' code: ' + evt.code + ' wasClean: ' + evt.wasClean);
 	      websocket.close();
+	      for (var prefix in fragment) {
+		  if (fragment[prefix])
+		      deferred.notify({'prefix': prefix, 'lines': [fragment[prefix]]});
+		  fragment[prefix] = "";
+	      }
 	      deferred.resolve();
 	  };
 	  websocket.onmessage = function(evt) {
 	      var prefix = ''
 	      var data = evt.data
+	      _console.log(data);
 	      if (data.indexOf('<hb>') == 0)
 		  return;
 	      if (data.indexOf('<err>') == 0) {
 		  prefix = '<err>';
-		  data = data.slice(5);
+	      } else if (data.indexOf('<status>') == 0) {
+		  prefix = '<status>';
+	      }
+	      data = data.slice(prefix.length);
+
+	      if (fragment[prefix]) {
+		  _console.log('prepending fragment: ' + fragment[prefix]);
+		  data = fragment[prefix] + data;
+		  fragment[prefix] = "";
 	      }
 	      var lines = data.split('\n');
+	      // if last line is empty, drop it, otherwise it is a fragment to include next time
+	      var frag = lines[lines.length - 1];
+	      if (frag !== "") {
+		  fragment[prefix] = frag;
+		  _console.log('new fragment: ' + fragment);
+	      }
+	      lines = lines.slice(0, lines.length-1);
 	      if (rawtext)
 		  callback(lines);
 	      else if (!prefix)
 		  callback(itemTemplate({items:lines}));
-	      else
+	      else if (prefix === '<err>')
 		  callback(errItemTemplate({items:lines}));
-	      deferred.notify(lines);
+	      else if (data != 0) {
+		  callback(errItemTemplate({items:['Process status code ' + data]}));
+	      }
+	      deferred.notify({'prefix': prefix, 'lines': lines});
 	  };
 	  websocket.onerror = function(evt) {
 	      _console.log('ERROR: ' + evt);
@@ -451,9 +476,20 @@ var Josh = Josh || {};
 	  });
       };
 
-      var displayBuildLines = function(lines) {
-	  for (var i in lines)
-	      $buildView.append('<p>'+lines[i]+'</p>');
+      var displayBuildLines = function(obj) {
+	  var prefix = obj.prefix;
+	  var lines = obj.lines;
+	  for (var i in lines) {
+	      _console.log('DBL: ' + prefix + lines[i]);
+	      if (!prefix) {
+		  $buildView.append('<p>'+lines[i]+'</p>');
+	      } else if (prefix === '<status>') {
+		  if (lines[i] !== "0")
+		      $buildView.append('<p class="ui-state-highlight">Process exited with code '+lines[i]+'</p>');
+	      } else {
+		  $buildView.append('<p class="ui-state-highlight">'+prefix+lines[i]+'</p>');
+	      }
+	  }
 	  $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
       }
 
@@ -483,7 +519,6 @@ var Josh = Josh || {};
 		  _console.log('chainCommands cmd='+cmd);
 		  cmds = cmds.slice(1);
 		  var d = runStreamingShellCommand(cmd, function (lines) {
-		      _console.log(lines);
 		  }, deviceUri);
 		  d.progress(displayBuildLines);
 		  d.done(chainCommands);
