@@ -348,7 +348,7 @@ var Josh = Josh || {};
 		  _console.log('text: ' + text);
 		  if (text.indexOf('<file>') == 0) {
 		      var filename = text.slice(6);
-		      if (filename.indexOf('zedboard') == 0) {
+		      if (filename.indexOf(boardname) == 0) {
 			  var uri = '/ui/' + username + '/' + $project;
 		      } else {
 			  var uri = 'https:' + $repo.slice(4) + '/blob/master';
@@ -501,12 +501,13 @@ var Josh = Josh || {};
 	      $buildView.append("<div>Error: Address of device is unknown.</div>");
 	      return;
 	  }
+	  var boardname = $('#boardname').val();
 	  var baseuri = 'http://' + buildServerAddress + '/ui/' + username + '/' + $project;
 	  if ($dir && ($dir !== 'undefined'))
 	      baseuri = baseuri + '/' + $dir;
 	  var cmds = ['rm -f /mnt/sdcard/android.exe /mnt/sdcard/mkTop.xdevcfg.bin.gz',
-		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/android.exe',
-		      'cd /mnt/sdcard; wget ' + baseuri + '/zedboard/bin/mkTop.xdevcfg.bin.gz',
+		      'cd /mnt/sdcard; wget ' + baseuri + '/' + boardname + '/bin/android.exe',
+		      'cd /mnt/sdcard; wget ' + baseuri + '/' + boardname + '/bin/mkTop.xdevcfg.bin.gz',
 		      'chmod agu+rx /mnt/sdcard/android.exe',
 		      'rmmod portalmem && insmod /mnt/sdcard/portalmem.ko',
 		      'rmmod zynqportal && insmod /mnt/sdcard/zynqportal.ko',
