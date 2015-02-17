@@ -7,12 +7,14 @@ var Josh = Josh || {};
       }
     };
 
+      // default value of buildServerAddress, but we look it up from root.location.origin down below
       var buildServerAddress = '54.86.72.185';
       var $shellPanel;
       var $discoveryPanel;
       var $buildPanel, $buildView;
       var $editor;
       var $filename;
+      var htmlPrefix = root.location.pathname.slice(0, root.location.pathname.lastIndexOf('/'));
       var wsUri = 'ws' + root.location.origin.slice(4) + '/ws/';
       var username;
       var deviceUri;
@@ -23,7 +25,8 @@ var Josh = Josh || {};
       var networkPrefixField;
       var discoverButton;
       var runButton;
-      _console.log(wsUri);
+      //_console.log("htmlPrefix: " + htmlPrefix);
+      //_console.log('wsUri: ' + wsUri);
 
       var itemTemplate = _.template('<% _.each(items, function(item, i) { %><div><%- item %></div><% }); %>');
       var errItemTemplate = _.template('<% _.each(items, function(item, i) { %><div><span class="stderr"><%- item %></span></div><% }); %>');
@@ -141,7 +144,7 @@ var Josh = Josh || {};
 	  websocket.onmessage = function(evt) {
 	      var prefix = ''
 	      var data = evt.data
-	      _console.log(data);
+	      //_console.log(data);
 	      if (data.indexOf('<hb>') == 0)
 		  return;
 	      if (data.indexOf('<err>') == 0) {
@@ -345,11 +348,11 @@ var Josh = Josh || {};
 	  function callback(lines) {
 	      for (var i in lines) {
 		  var text = lines[i];
-		  _console.log('text: ' + text);
+		  //_console.log('text: ' + text);
 		  if (text.indexOf('<file>') == 0) {
 		      var filename = text.slice(6);
 		      if (filename.indexOf(boardname) == 0) {
-			  var uri = '/ui/' + username + '/' + $project;
+			  var uri = htmlPrefix + '/' + username + '/' + $project;
 		      } else {
 			  var uri = 'https:' + $repo.slice(4) + '/blob/master';
 		      }
@@ -502,7 +505,7 @@ var Josh = Josh || {};
 	      return;
 	  }
 	  var boardname = $('#boardname').val();
-	  var baseuri = 'http://' + buildServerAddress + '/ui/' + username + '/' + $project;
+	  var baseuri = 'http://' + buildServerAddress + htmlPrefix + '/' + username + '/' + $project;
 	  if ($dir && ($dir !== 'undefined'))
 	      baseuri = baseuri + '/' + $dir;
 	  var cmds = ['rm -f /mnt/sdcard/android.exe /mnt/sdcard/mkTop.xdevcfg.bin.gz',
@@ -655,7 +658,7 @@ var Josh = Josh || {};
       shell.setCommandHandler("proxy", {
 	  exec: function(cmd, args, callback) {
 	      var intname = args[0];
-	      var uri = '/ui/connectal/examples/echowebsocket/bluesim/generatedDesignInterfaceFile.json';
+	      var uri = htmlPrefix + '/connectal/examples/echowebsocket/bluesim/generatedDesignInterfaceFile.json';
 	      $.getJSON(uri, function (data) {
 		  _console.log("interface data", data);
 		  callback(data);
@@ -797,6 +800,22 @@ var Josh = Josh || {};
 	bareditor.getSession().setMode("ace/mode/verilog");
 
 	setProject($repo, $dir);
+
+	d = runStreamingShellCommand('host ' + root.location.origin.slice(root.location.origin.indexOf(':')+3),
+				     function () {},
+				     wsUri);
+	d.progress(function (info) {
+	    var pat = 'has address ';
+	    for (var i in info.lines) {
+		var line = info.lines[i];
+		_console.log('host line: ' + line);
+		var pos = line.indexOf(pat);
+		if (pos >= 0) {
+		    buildServerAddress = line.slice(pos + pat.length);
+		    _console.log('buildServerAddress: ' + buildServerAddress);
+		}
+	    }
+	});
 
     });
 
