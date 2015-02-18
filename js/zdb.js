@@ -239,6 +239,19 @@ var Josh = Josh || {};
 	  }
 	  return deferred;
       };
+      function editFile (filename) {
+	  var deferred = $.Deferred();
+	  var d = getFile(filename, wsUri);
+	  d.done(function (v) {
+	      $('#tabs').slideDown();
+	      $editor.setValue(v);
+	      deferred.resolve(filename);
+	  });
+	  d.fail(function (v) {
+	      deferred.reject(v);
+	  });
+	  return deferred;
+      };
 
       function probeAddr(ipaddr, port, discoveryPanel, shellCallback) {
 	  var uri = 'ws://' + ipaddr + ':' + port + '/ws/';
@@ -350,10 +363,16 @@ var Josh = Josh || {};
 		      if ($dir)
 			  uri = uri + '/' + $dir;
 		      uri = uri + '/' + filename;
-		      fileList.append('<li><a href="' + uri + '">' + filename + '</a></li>');
+		      fileList.append('<li><a href="' + uri + '">' + filename + '</a><button id="editbutton" value="' + filename + '">Edit</button></li>');
 		      filePanel.animate({'scrollTop': fileView.height()}, 1);
 		  }
 	      }
+	      $('button').button().click(function (evt) {
+		  evt.preventDefault();
+		  _console.log('clicked: ' + evt.currentTarget.value);
+		  _console.log(evt);
+		  editFile(username + '/' + $project + '/' + evt.currentTarget.value);
+	      });
 	  }
 	  cmdinfo = {'cmd': 'clone.py',
 		     'repo': repourl,
