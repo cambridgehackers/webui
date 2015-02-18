@@ -243,6 +243,9 @@ var Josh = Josh || {};
 	  var deferred = $.Deferred();
 	  var d = getFile(filename, wsUri);
 	  d.done(function (v) {
+	      var name = filename.slice(filename.lastIndexOf('/')+1);
+	      $('#firsttabli').empty();
+	      $('#firsttabli').append('<li><a href="#footxt">' + name + '</a></li');
 	      $('#tabs').slideDown();
 	      $editor.setValue(v);
 	      deferred.resolve(filename);
@@ -370,7 +373,6 @@ var Josh = Josh || {};
 	      $('button').button().click(function (evt) {
 		  evt.preventDefault();
 		  _console.log('clicked: ' + evt.currentTarget.value);
-		  _console.log(evt);
 		  editFile(username + '/' + $project + '/' + evt.currentTarget.value);
 	      });
 	  }
@@ -815,9 +817,6 @@ var Josh = Josh || {};
 	$editor = ace.edit("footxt");
 	$editor.setTheme("ace/theme/monokai");
 	$editor.getSession().setMode("ace/mode/verilog");
-	var bareditor = ace.edit("bartxt");
-	bareditor.setTheme("ace/theme/monokai");
-	bareditor.getSession().setMode("ace/mode/verilog");
 
 	setProject($repo, $dir);
 
