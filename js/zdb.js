@@ -119,11 +119,10 @@ var Josh = Josh || {};
 	      writeToScreen('ERROR: ' + evt.data, callback);
 	  }
       };
-      function runStreamingShellCommand(cmd, cb, uri, rawtext) {
+      function runStreamingShellCommand(cmd, uri) {
 	  if (!uri)
 	      uri = wsUri;
 	  _console.log('runStreamingShellCommand: ' + uri);
-	  var callback = cb;
 	  var websocket = new WebSocket(uri, 'shell');
 	  var deferred = $.Deferred();
 	  var fragment = {};
@@ -167,15 +166,6 @@ var Josh = Josh || {};
 		  _console.log('new fragment: ' + fragment);
 	      }
 	      lines = lines.slice(0, lines.length-1);
-	      if (rawtext)
-		  callback(lines);
-	      else if (!prefix)
-		  callback(itemTemplate({items:lines}));
-	      else if (prefix === '<err>')
-		  callback(errItemTemplate({items:lines}));
-	      else if (data != 0) {
-		  callback(errItemTemplate({items:['Process status code ' + data]}));
-	      }
 	      deferred.notify({'prefix': prefix, 'lines': lines});
 	  };
 	  websocket.onerror = function(evt) {
@@ -345,7 +335,8 @@ var Josh = Josh || {};
 	  var fileList = $('#file-list');
 	  var boardname = $('#boardname').val();
 	  fileList.empty();
-	  function callback(lines) {
+	  function callback(info) {
+	      var lines = info.lines;
 	      for (var i in lines) {
 		  var text = lines[i];
 		  //_console.log('text: ' + text);
@@ -372,11 +363,12 @@ var Josh = Josh || {};
 		     'boardname': boardname
 		    };
 	  cmd = JSON.stringify(cmdinfo);
-	  var d = runStreamingShellCommand(cmd, callback, wsUri, 1);
+	  var d = runStreamingShellCommand(cmd, wsUri);
 	  d.done(function () {
 	  });
 	  d.fail(function () {
 	  });
+	  d.progress(callback);
       };
 
       var progressLevels = {
@@ -406,15 +398,19 @@ var Josh = Josh || {};
 	  _console.log("running build " + repourl + ' dir ' + dir + ' target ' + boardname);
 	  $buildView.empty();
 	  $buildPanel.slideDown();
-	  function callback(text) {
-	      for (var key in progressLevels) {
-		  var level = progressLevels[key];
-		  if (text.indexOf(key) >= 0)
-		      buildProgress.progressbar("option", "value", level);
+	  function callback(info) {
+	      var lines = info.lines;
+	      for (var i in lines) {
+		  var text = lines[i];
+		  for (var key in progressLevels) {
+		      var level = progressLevels[key];
+		      if (text.indexOf(key) >= 0)
+			  buildProgress.progressbar("option", "value", level);
+		  }
+		  $buildView.append(text);
+		  $buildView.append('<br>');
+		  $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
 	      }
-	      $buildView.append(text);
-	      $buildView.append('<br>');
-	      $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
 	  }
 	  cmdinfo = {'cmd': 'build.py',
 		     'repo': repourl,
@@ -424,9 +420,10 @@ var Josh = Josh || {};
 		     'boardname': boardname
 		    };
 	  cmd = JSON.stringify(cmdinfo);
-	  var d = runStreamingShellCommand(cmd, callback);
+	  var d = runStreamingShellCommand(cmd);
 	  buildButton.val('building...');
 	  buildProgress.progressbar("option", "value", 0);
+	  d.progress(callback);
 	  d.done(function () {
 	      buildProgress.progressbar("option", "value", 100);
 	      buildButton.val('Build');
@@ -450,15 +447,19 @@ var Josh = Josh || {};
 	  _console.log("running bluesim " + repourl + ' dir ' + dir + ' target ' + boardname);
 	  $buildView.empty();
 	  $buildPanel.slideDown();
-	  function callback(text) {
-	      for (var key in progressLevels) {
-		  var level = progressLevels[key];
-		  if (text.indexOf(key) >= 0)
-		      buildProgress.progressbar("option", "value", level);
+	  function callback(info) {
+	      var lines = info.lines;
+	      for (var i in lines) {
+		  var text = lines[i];
+		  for (var key in progressLevels) {
+		      var level = progressLevels[key];
+		      if (text.indexOf(key) >= 0)
+			  buildProgress.progressbar("option", "value", level);
+		  }
+		  $buildView.append(text);
+		  $buildView.append('<br>');
+		  $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
 	      }
-	      $buildView.append(text);
-	      $buildView.append('<br>');
-	      $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
 	  }
 	  cmdinfo = {'cmd': 'run.py',
 		     'repo': repourl,
@@ -468,9 +469,10 @@ var Josh = Josh || {};
 		     'boardname': boardname
 		    };
 	  cmd = JSON.stringify(cmdinfo);
-	  var d = runStreamingShellCommand(cmd, callback);
+	  var d = runStreamingShellCommand(cmd);
 	  runButton.val('running...');
 	  buildProgress.progressbar("option", "value", false);
+	  d.progress(callback);
 	  d.done(function () {
 	      buildProgress.progressbar("option", "value", 100);
 	      runButton.val('Run');
@@ -523,8 +525,7 @@ var Josh = Josh || {};
 		  var cmd = cmds[0];
 		  _console.log('chainCommands cmd='+cmd);
 		  cmds = cmds.slice(1);
-		  var d = runStreamingShellCommand(cmd, function (lines) {
-		  }, deviceUri);
+		  var d = runStreamingShellCommand(cmd, deviceUri);
 		  d.progress(displayBuildLines);
 		  d.done(chainCommands);
 	      }
@@ -802,7 +803,6 @@ var Josh = Josh || {};
 	setProject($repo, $dir);
 
 	d = runStreamingShellCommand('host ' + root.location.origin.slice(root.location.origin.indexOf(':')+3),
-				     function () {},
 				     wsUri);
 	d.progress(function (info) {
 	    var pat = 'has address ';
