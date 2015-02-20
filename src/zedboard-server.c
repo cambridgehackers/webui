@@ -298,7 +298,7 @@ callback_shell(struct libwebsocket_context *context,
 	while (1) {
 	  if (pss->len == 0) {
 	    pid_t pid = waitpid(pss->subprocess.pid, &pss->subprocess.exitCode, WNOHANG);
-	    if (pid) {
+	    if (pid && pid != -1) {
 #ifdef ANDROID
 	      __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] subprocess exited pid=%d exitCode=%d\n", __FUNCTION__, __LINE__, pid, pss->subprocess.exitCode);
 #endif
@@ -321,7 +321,8 @@ callback_shell(struct libwebsocket_context *context,
 	    pollfd[1].events = POLLIN;
 	    int status = poll(pollfd, 2, 0);
 #ifdef ANDROID
-	    __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] poll status=%d errno=%d\n", __FUNCTION__, __LINE__, status, (status < 0 ? errno : 0));
+	    if (status)
+	      __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] poll status=%d errno=%d\n", __FUNCTION__, __LINE__, status, (status < 0 ? errno : 0));
 #endif
 	    if (status > 0) {
 	      int i;
@@ -366,6 +367,7 @@ callback_shell(struct libwebsocket_context *context,
 	  pss->len -= n;
 	  fprintf(stderr, "   wrote %d pss->len = %ld\n", n, pss->len);
 #ifdef ANDROID
+	  __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] wrote %s\n", __FUNCTION__, __LINE__, &pss->buf[LWS_SEND_BUFFER_PRE_PADDING]);
 	  __android_log_print(ANDROID_LOG_INFO, "websocket", "[%s:%d] wrote %d pss->len=%d\n", __FUNCTION__, __LINE__, n, pss->len);
 #endif
 
