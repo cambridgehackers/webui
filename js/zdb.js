@@ -8,6 +8,7 @@ var Josh = Josh || {};
     };
 
       // default value of buildServerAddress, but we look it up from root.location.origin down below
+      var usingAws = true;
       var buildServerAddress = '54.86.72.185';
       var $shellPanel;
       var $discoveryPanel;
@@ -820,21 +821,22 @@ var Josh = Josh || {};
 
 	setProject($repo, $dir);
 
-	d = runStreamingShellCommand('host ' + root.location.origin.slice(root.location.origin.indexOf(':')+3),
-				     wsUri);
-	d.progress(function (info) {
-	    var pat = 'has address ';
-	    for (var i in info.lines) {
-		var line = info.lines[i];
-		_console.log('host line: ' + line);
-		var pos = line.indexOf(pat);
-		if (pos >= 0) {
-		    buildServerAddress = line.slice(pos + pat.length);
-		    _console.log('buildServerAddress: ' + buildServerAddress);
+	if (!usingAws) {
+	    d = runStreamingShellCommand('host ' + root.location.origin.slice(root.location.origin.indexOf(':')+3),
+					 wsUri);
+	    d.progress(function (info) {
+		var pat = 'has address ';
+		for (var i in info.lines) {
+		    var line = info.lines[i];
+		    _console.log('host line: ' + line);
+		    var pos = line.indexOf(pat);
+		    if (pos >= 0) {
+			buildServerAddress = line.slice(pos + pat.length);
+			_console.log('buildServerAddress: ' + buildServerAddress);
+		    }
 		}
-	    }
-	});
-
+	    });
+	}
     });
 
   })(root, $, _);
