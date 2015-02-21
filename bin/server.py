@@ -22,6 +22,8 @@ import sys
 import json
 import irc
 
+import client
+
 irclog = None
 
 import twisted
@@ -30,6 +32,7 @@ from twisted.python import log
 from twisted.web.server import Site
 from twisted.web.static import File
 
+from autobahn.twisted.websocket import WebSocketClientProtocol, WebSocketClientFactory
 from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
 from autobahn.twisted.resource import WebSocketResource, HTTPChannelHixie76Aware
 
@@ -69,30 +72,48 @@ class ShellServerProtocol(WebSocketServerProtocol):
 
    def onConnect(self, request):
       print("WebSocket connection request: {}".format(request))
+      print('  protocols', self.websocket_protocols)
       self.cmd = None
       self.f = None
       self.process = None
+      if not self.websocket_protocols:
+          print 'no protocols'
+          return
       protocol = self.websocket_protocols[0]
       if protocol == 'push' or protocol == 'pull':
-          filename = request.path
-          filename = filename[4:]
-          print filename
-          if protocol == 'push':
-              self.f = open(filename, 'w')
-              print self.f, 'w'
-          else:
-              self.f = open(filename, 'r')
-              self.t = self.f.read()
-              print self.t
-              def later(self):
-                  self.sendMessage(self.t)
-                  print 'ShellServerProtocol.later, closing'
-                  self.sendClose()
-              reactor.callLater(1, later, self)
-
+          try:
+              filename = request.path
+              filename = filename[4:]
+              print 'filename', filename
+              if protocol == 'push':
+                  self.f = open(filename, 'w')
+                  print self.f, 'w'
+              else:
+                  self.f = open(filename, 'r')
+                  self.t = self.f.read()
+                  print self.t
+                  def later(self):
+                      self.sendMessage(self.t)
+                      print 'ShellServerProtocol.later, closing'
+                      self.sendClose()
+                  reactor.callLater(1, later, self)
+          except:
+              print 'error in push or pull'
+              pass
+      if protocol == 'devices':
+          print('onConnect.devices', client.deviceAddresses)
+          print('onConnect.devices', json.dumps(client.deviceAddresses))
+          def later(self):
+              self.sendMessage(json.dumps(client.deviceAddresses), False)
+              print ('sent devices list')
+              self.sendClose()
+          reactor.callLater(1, later, self)
       return (self.websocket_protocols[0],)
 
    def onMessage(self, payload, isBinary):
+       if not self.websocket_protocols:
+           print 'onMessage', payload
+           return
        protocol = self.websocket_protocols[0]
        if protocol == 'shell':
            self.wspp = WSProcessProtocol(self, isBinary, True)
@@ -164,6 +185,14 @@ if __name__ == '__main__':
    site = Site(root)
    site.protocol = HTTPChannelHixie76Aware # needed if Hixie76 is to be supported
    reactor.listenTCP(7682, site)
+
+   addrs = client.detect_network()
+   addrs = ['192.168.214.116']
+   for addr in addrs:
+       factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=False, protocols=[])
+       factory.protocol = client.MyClientProtocol
+        
+       reactor.connectTCP(addr, 7682, factory)
 
    print os.environ
    reactor.run()
