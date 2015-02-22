@@ -155,6 +155,18 @@ class ShellServerProtocol(WebSocketServerProtocol):
        if self.f:
            self.f.close()
 
+def probeAddrs(addrs):
+    limit = 100
+    if len(addrs) > limit:
+        rest = addrs[limit:]
+        addrs = addrs[0:limit]
+        reactor.callLater(10,probeAddrs,rest)
+    for addr in addrs:
+        print 'probing addr', addr
+        factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=False, protocols=[])
+        factory.protocol = client.MyClientProtocol
+        reactor.connectTCP(addr, 7682, factory)
+
 if __name__ == '__main__':
 
    if len(sys.argv) > 1 and sys.argv[1] == 'debug':
@@ -187,12 +199,8 @@ if __name__ == '__main__':
    reactor.listenTCP(7682, site)
 
    addrs = client.detect_network()
-   addrs = ['192.168.214.116']
-   for addr in addrs:
-       factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=False, protocols=[])
-       factory.protocol = client.MyClientProtocol
-        
-       reactor.connectTCP(addr, 7682, factory)
-
+   print len(addrs)
+   #addrs = ['192.168.214.116', '172.27.5.235']
+   reactor.callLater(1, probeAddrs, addrs)
    print os.environ
    reactor.run()
