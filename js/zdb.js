@@ -17,6 +17,7 @@ var Josh = Josh || {};
       var $filename;
       var htmlPrefix = root.location.pathname.slice(0, root.location.pathname.lastIndexOf('/'));
       var wsUri = 'ws' + root.location.origin.slice(4) + '/ws/';
+      var desktopUri;
       var username;
       var deviceUri;
       var projectField;
@@ -391,6 +392,9 @@ var Josh = Josh || {};
 	  d.fail(function () {
 	  });
 	  d.progress(callback);
+	  if (desktopUri) {
+	      var dd = runStreamingShellCommand(cmd, desktopUri);
+	  }
       };
 
       var progressLevels = {
@@ -825,6 +829,7 @@ var Josh = Josh || {};
 	    var ws = new WebSocket('ws://127.0.0.1:7682/ws', 'devices');
 	    ws.onopen = function(evt) {
 		_console.log("device websocket open");
+		desktopUri = 'ws://127.0.0.1:7682/ws';
 	    }
 	    ws.onmessage = function(evt) {
 		_console.log("received devices message " + evt.data);
