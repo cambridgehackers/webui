@@ -11,6 +11,7 @@ dirname = None
 username = 'defaultuser'
 boardname = 'zedboard'
 branch = 'master'
+listfiles = True
 
 def updateRepo(url, branch='master'):
     name = os.path.basename(url)
@@ -32,6 +33,8 @@ if sys.argv[1].startswith('{'):
         branch = info['branch']
     if 'username' in info:
         username = info['username']
+    if 'listfiles' in info:
+        listfiles = info['listfiles']
 else:
     repo = sys.argv[1]
     if len(sys.argv) > 2:
@@ -49,20 +52,21 @@ if not repo.startswith('git://github.com'):
 updateRepo(repo)
 if dirname:
     os.chdir(dirname)
-for pattern in ['*',
-                boardname + '/Makefile',
-                boardname + '/*.mk',
-                boardname + '/verilog/*',
-                boardname + '/jni/*',
-                boardname + '/sources/*/*',
-                boardname + '/constraints/*',
-                boardname + '/obj/*',
-                boardname + '/bin/*',
-                boardname + '/Synth/*/*',
-                boardname + '/Impl/*/*']:
-    for f in glob.glob(pattern):
-        if os.path.isdir(f):
-            print '<dir>' + f
-        else:
-            print '<file>' + f
+if listfiles:
+    for pattern in ['*',
+                    boardname + '/Makefile',
+                    boardname + '/*.mk',
+                    boardname + '/verilog/*',
+                    boardname + '/jni/*',
+                    boardname + '/sources/*/*',
+                    boardname + '/constraints/*',
+                    boardname + '/obj/*',
+                    boardname + '/bin/*',
+                    boardname + '/Synth/*/*',
+                    boardname + '/Impl/*/*']:
+        for f in glob.glob(pattern):
+            if os.path.isdir(f):
+                print '<dir>' + f
+            else:
+                print '<file>' + f
 
