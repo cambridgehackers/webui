@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+import json
 import re
 import sys
 import netifaces
@@ -11,7 +12,7 @@ from autobahn.twisted.websocket import WebSocketClientProtocol, \
 
 deviceAddresses = []
 
-class MyClientProtocol(WebSocketClientProtocol):
+class DeviceClientProtocol(WebSocketClientProtocol):
 
     def onConnect(self, response):
         print("Server connected: {0}".format(response.peer))
@@ -21,6 +22,25 @@ class MyClientProtocol(WebSocketClientProtocol):
         print deviceAddresses
         self.sendClose()
         #self.factory.reactor.callLater(1, closeLater)
+
+    def onOpen(self):
+        global deviceAddresses
+        print("WebSocket connection open.")
+
+    def onMessage(self, payload, isBinary):
+        if isBinary:
+            print("Binary message received: {0} bytes".format(len(payload)))
+        else:
+            print("Text message received: {0}".format(payload.decode('utf8')))
+
+    def onClose(self, wasClean, code, reason):
+        print("WebSocket connection closed: {0}".format(reason))
+
+class ShellClientProtocol(WebSocketClientProtocol):
+
+    def onConnect(self, response):
+        print("Server connected: {0}".format(response.peer))
+        self.sendMessage(json.dumps(self.factory.info), False)
 
     def onOpen(self):
         global deviceAddresses
@@ -63,6 +83,15 @@ def detect_network():
 
 if __name__ == '__main__':
 
+    import argparse
+    argparser = argparse.ArgumentParser('Build server')
+    argparser.add_argument('-d', '--debug', help='Enable debug log', default=False, action='store_true')
+    argparser.add_argument('-p', '--probe', help='Probe for devices', default=False, action='store_true') 
+    argparser.add_argument('--gitdiff', help='Git diff', default=False, action='store_true') 
+    argparser.add_argument('--irclog', help='Log builds to irc.freenode.net', default=False, action='store_true')
+
+    options = argparser.parse_args()
+
     import sys
 
     from twisted.python import log
@@ -70,12 +99,29 @@ if __name__ == '__main__':
 
     #log.startLogging(sys.stdout)
 
-    addrs = detect_network()
-    addrs = ['192.168.214.116']
-    for addr in addrs:
-        factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=False, protocols=[])
-        factory.protocol = MyClientProtocol
-        
+    if options.probe:
+        addrs = detect_network()
+        addrs = ['192.168.214.116']
+        for addr in addrs:
+            factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=options.debug, protocols=[])
+            factory.protocol = DeviceClientProtocol
+
+            reactor.connectTCP(addr, 7682, factory)
+
+    if options.gitdiff:
+        addr = '127.0.0.1'
+        factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=options.debug, protocols=['shell'])
+        factory.info = {
+            'cmd': 'clone.py',
+            'repo': 'git://github.com/zedblue/leds',
+            'dir': '',
+            'username': 'jameyhicks',
+            'branch': 'master',
+            'boardname': 'zedboard',
+            'diff': 1
+            }
+        factory.protocol = ShellClientProtocol
+
         reactor.connectTCP(addr, 7682, factory)
 
     reactor.run()
