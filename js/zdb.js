@@ -447,7 +447,8 @@ var Josh = Josh || {};
 			 'branch': branch,
 			 'boardname': boardname,
 			 'patch': patch,
-			 'update': update
+			 'update': update,
+			 'listfiles': 0
 			};
 	      cmd = JSON.stringify(cmdinfo);
 	      var d = runStreamingShellCommand(cmd);
@@ -470,7 +471,8 @@ var Josh = Josh || {};
 			 'branch': branch,
 			 'boardname': boardname,
 			 'gitdiff': 1,
-			 'update': 0
+			 'update': 0,
+			 'listfiles': 0
 			};
 	      cmd = JSON.stringify(cmdinfo);
 	      var d = runStreamingShellCommand(cmd, desktopUri);
@@ -478,10 +480,11 @@ var Josh = Josh || {};
 	      buildButton.val('getting edits...');
 	      d.progress(function(info) {
 		  if (!info.prefix) {
+		      var chunk = info.lines.join('\n') + '\n';
 		      if (!result.patch)
-			  result.patch = info.lines.join('\n');
+			  result.patch = chunk;
 		      else
-			  result.patch = result.patch + info.lines.join('\n');
+			  result.patch = result.patch + chunk;
 		  }
 	      });
 	      d.done(function () {
