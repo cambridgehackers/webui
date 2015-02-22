@@ -171,9 +171,9 @@ def probeAddrs(addrs):
 if __name__ == '__main__':
 
    argparser = argparse.ArgumentParser('Build server')
-   argparser.add_argument('-d', '--debug', help='Enable debug log', default=False)
-   argparser.add_argument('-p', '--probe', help='Probe for devices', default=False) 
-   argparser.add_argument('--irclog', help='Log builds to irc.freenode.net', default=False)
+   argparser.add_argument('-d', '--debug', help='Enable debug log', default=False, action='store_true')
+   argparser.add_argument('-p', '--probe', help='Probe for devices', default=False, action='store_true') 
+   argparser.add_argument('--irclog', help='Log builds to irc.freenode.net', default=False, action='store_true')
 
    options = argparser.parse_args()
    if options.debug:
