@@ -56,13 +56,16 @@ if verbose:
     subprocess.call(['/bin/pwd'])
 if verbose:
     print os.curdir
-os.environ['LM_LICENSE_FILE'] = '27000@10.0.0.61'
-os.environ['CONNECTALDIR'] = '/usr/share/connectal'
+if not os.getenv('LM_LICENSE_FILE'):
+    os.environ['LM_LICENSE_FILE'] = '27000@10.0.0.61'
+if not os.getenv('CONNECTALDIR'):
+    os.environ['CONNECTALDIR'] = '/usr/share/connectal'
+if not os.getenv('BLUESPECDIR'):
+    os.environ['BLUESPECDIR'] = '/scratch/bluespec/Bluespec-2014.07.A/lib'
 os.environ['PATH'] = (os.environ['PATH']
                       + ':/scratch/Xilinx/Vivado/2014.1/bin'
                       + ':/scratch/android-ndk-r9d'
-                      + ':/scratch/bluespec/Bluespec-2014.07.A/bin')
-os.environ['BLUESPECDIR'] = '/scratch/bluespec/Bluespec-2014.07.A/lib'
+                      + ':' + os.getenv('BLUESPECDIR'))
 
 #exitcode = subprocess.call(['make', 'V=1', 'build.%s' % boardname])
 exitcode = subprocess.call(['make', 'run.%s' % boardname])
