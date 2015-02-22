@@ -143,7 +143,7 @@ if __name__ == '__main__':
             'branch': 'master',
             'boardname': 'zedboard',
             'listfiles': 0,
-            'noupdate': 1,
+            'update': 1,
             'gitdiff': 1
             }
         factory.protocol = ShellClientProtocol

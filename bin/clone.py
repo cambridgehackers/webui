@@ -40,8 +40,8 @@ if sys.argv[1].startswith('{'):
         listfiles = info['listfiles']
     if 'gitdiff' in info:
         gitdiff = info['gitdiff']
-    if 'noupdate' in info:
-        update = not info['noupdate']
+    if 'update' in info:
+        update = info['update']
 else:
     repo = sys.argv[1]
     if len(sys.argv) > 2:
