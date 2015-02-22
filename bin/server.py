@@ -21,6 +21,7 @@ import os
 import sys
 import json
 import irc
+import argparse
 
 import client
 
@@ -169,14 +170,21 @@ def probeAddrs(addrs):
 
 if __name__ == '__main__':
 
-   if len(sys.argv) > 1 and sys.argv[1] == 'debug':
+   argparser = argparse.ArgumentParser('Build server')
+   argparser.add_argument('-d', '--debug', help='Enable debug log', default=False)
+   argparser.add_argument('-p', '--probe', help='Probe for devices', default=False) 
+   argparser.add_argument('--irclog', help='Log builds to irc.freenode.net', default=False)
+
+   options = argparser.parse_args()
+   if options.debug:
       log.startLogging(sys.stdout)
       debug = True
    else:
       debug = False
 
-   irclog = irc.LogBotFactory('#asic-builds', 'irclog.txt')
-   reactor.connectTCP("irc.freenode.net", 6667, irclog)
+   if options.irclog:
+       irclog = irc.LogBotFactory('#asic-builds', 'irclog.txt')
+       reactor.connectTCP("irc.freenode.net", 6667, irclog)
 
    factory = WebSocketServerFactory("ws://localhost:7682/",
                                     debug = debug,
@@ -198,9 +206,11 @@ if __name__ == '__main__':
    site.protocol = HTTPChannelHixie76Aware # needed if Hixie76 is to be supported
    reactor.listenTCP(7682, site)
 
-   addrs = client.detect_network()
-   print len(addrs)
-   #addrs = ['192.168.214.116', '172.27.5.235']
-   reactor.callLater(1, probeAddrs, addrs)
+   if options.probe:
+       addrs = client.detect_network()
+       print len(addrs)
+       #addrs = ['192.168.214.116', '172.27.5.235']
+       reactor.callLater(1, probeAddrs, addrs)
+
    print os.environ
    reactor.run()
