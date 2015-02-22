@@ -12,6 +12,7 @@ username = 'defaultuser'
 boardname = 'zedboard'
 branch = 'master'
 listfiles = True
+gitdiff = False
 
 def updateRepo(url, branch='master'):
     name = os.path.basename(url)
@@ -35,6 +36,8 @@ if sys.argv[1].startswith('{'):
         username = info['username']
     if 'listfiles' in info:
         listfiles = info['listfiles']
+    if 'gitdiff' in info:
+        gitdiff = info['gitdiff']
 else:
     repo = sys.argv[1]
     if len(sys.argv) > 2:
@@ -69,4 +72,7 @@ if listfiles:
                 print '<dir>' + f
             else:
                 print '<file>' + f
+
+if gitdiff:
+    subprocess.call(['git', 'diff', 'HEAD'])
 
