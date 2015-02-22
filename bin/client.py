@@ -51,6 +51,11 @@ class ShellClientProtocol(WebSocketClientProtocol):
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
             print("Text message received: {0}".format(payload.decode('utf8')))
+        if payload.startswith('<status>') or payload.startswith('<err>'):
+            return
+        if hasattr(self.factory, 'callback'):
+            print self.factory.callback
+            self.factory.callback(payload)
 
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {0}".format(reason))
@@ -80,6 +85,25 @@ def detect_network():
                     end = end-1
                     print (int2ip(start), int2ip(end)) 
                     return [int2ip(start+i) for i in xrange(1, (netmask ^ 0xffffffff))]
+
+def runpatch(patch):
+    print 'running patch'
+    print patch
+    factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=options.debug, protocols=['shell'])
+    factory.info = {
+        'cmd': 'build.py',
+        'repo': 'git://github.com/zedblue/leds',
+        'dir': '',
+        'username': 'jameyhicks2',
+        'branch': 'master',
+        'boardname': 'zedboard',
+        'listfiles': 0,
+        'update': 0,
+        'patch': patch
+        }
+    factory.protocol = ShellClientProtocol
+    reactor.connectTCP(addr, 7682, factory)
+
 
 if __name__ == '__main__':
 
@@ -123,6 +147,7 @@ if __name__ == '__main__':
             'gitdiff': 1
             }
         factory.protocol = ShellClientProtocol
+        factory.callback = runpatch
 
         reactor.connectTCP(addr, 7682, factory)
 
