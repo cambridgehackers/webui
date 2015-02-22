@@ -821,6 +821,19 @@ var Josh = Josh || {};
 
 	setProject($repo, $dir);
 
+	if (1) {
+	    var ws = new WebSocket('ws://127.0.0.1:7682/ws', 'devices');
+	    ws.onopen = function(evt) {
+		_console.log("device websocket open");
+	    }
+	    ws.onmessage = function(evt) {
+		_console.log("received devices message " + evt.data);
+		deviceAddresses = JSON.parse(evt.data);
+		$discoveryPanel.append('<div>Device: ' + deviceAddresses[0] + '</div>');
+		deviceUri = 'ws://' + deviceAddresses[0] + ':7682/ws';
+		networkPrefixField.val(deviceAddresses[0]);
+	    }
+	}
 	if (!usingAws) {
 	    d = runStreamingShellCommand('host ' + root.location.origin.slice(root.location.origin.indexOf(':')+3),
 					 wsUri);
