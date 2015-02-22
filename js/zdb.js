@@ -438,25 +438,61 @@ var Josh = Josh || {};
 		  $buildPanel.animate({'scrollTop': $buildView.height()}, 10);
 	      }
 	  }
-	  cmdinfo = {'cmd': 'build.py',
-		     'repo': repourl,
-		     'dir': dir,
-		     'username': username,
-		     'branch': branch,
-		     'boardname': boardname
-		    };
-	  cmd = JSON.stringify(cmdinfo);
-	  var d = runStreamingShellCommand(cmd);
-	  buildButton.val('building...');
-	  buildProgress.progressbar("option", "value", 0);
-	  d.progress(callback);
-	  d.done(function () {
-	      buildProgress.progressbar("option", "value", 100);
-	      buildButton.val('Build');
-	  });
-	  d.fail(function () {
-	      buildButton.val('Build');
-	  });
+	  function runbuildcmd(patch) {
+	      var update = !patch;
+	      cmdinfo = {'cmd': 'build.py',
+			 'repo': repourl,
+			 'dir': dir,
+			 'username': username,
+			 'branch': branch,
+			 'boardname': boardname,
+			 'patch': patch,
+			 'update': update
+			};
+	      cmd = JSON.stringify(cmdinfo);
+	      var d = runStreamingShellCommand(cmd);
+	      buildButton.val('building...');
+	      buildProgress.progressbar("option", "value", 0);
+	      d.progress(callback);
+	      d.done(function () {
+		  buildProgress.progressbar("option", "value", 100);
+		  buildButton.val('Build');
+	      });
+	      d.fail(function () {
+		  buildButton.val('Build');
+	      });
+	  }
+	  if (desktopUri) {
+	      cmdinfo = {'cmd': 'clone.py',
+			 'repo': repourl,
+			 'dir': dir,
+			 'username': username,
+			 'branch': branch,
+			 'boardname': boardname,
+			 'gitdiff': 1,
+			 'update': 0
+			};
+	      cmd = JSON.stringify(cmdinfo);
+	      var d = runStreamingShellCommand(cmd, desktopUri);
+	      var result = {};
+	      buildButton.val('getting edits...');
+	      d.progress(function(info) {
+		  if (!info.prefix) {
+		      if (!result.patch)
+			  result.patch = info.lines.join('\n');
+		      else
+			  result.patch = result.patch + info.lines.join('\n');
+		  }
+	      });
+	      d.done(function () {
+		  runbuildcmd(result.patch);
+	      });
+	      d.fail(function () {
+		  runbuildcmd('');
+	      });
+	  } else {
+	      runbuildcmd('');
+	  }
       };
 
       var runBluesim = function(repourl, dir) {
