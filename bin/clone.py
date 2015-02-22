@@ -13,12 +13,14 @@ boardname = 'zedboard'
 branch = 'master'
 listfiles = True
 gitdiff = False
+update = True
 
-def updateRepo(url, branch='master'):
+def updateRepo(url, branch='master', update=True):
     name = os.path.basename(url)
     if os.path.exists(name):
         os.chdir(name)
-        subprocess.call(['git', 'pull', 'origin', branch])
+        if update:
+            subprocess.call(['git', 'pull', 'origin', branch])
     else:
         subprocess.call(['git', 'clone', url, '-b', branch])
         os.chdir(name)
@@ -38,6 +40,8 @@ if sys.argv[1].startswith('{'):
         listfiles = info['listfiles']
     if 'gitdiff' in info:
         gitdiff = info['gitdiff']
+    if 'noupdate' in info:
+        update = not info['noupdate']
 else:
     repo = sys.argv[1]
     if len(sys.argv) > 2:
@@ -52,7 +56,7 @@ if not '/' in repo:
     repo = 'git://github.com/cambridgehackers/' + repo
 if not repo.startswith('git://github.com'):
     repo = 'git://github.com/' + repo
-updateRepo(repo)
+updateRepo(repo, branch, update)
 if dirname:
     os.chdir(dirname)
 if listfiles:
