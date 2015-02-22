@@ -9,6 +9,10 @@ LDFLAGS = -L$(LIBWEBSOCKETS_BUILD_DIR)/lib -lwebsockets
 
 all:
 
+config:
+	sed -i.001 -e "s/54.86.72.185/`bin/getpublicip.py`/" js/zdb.js
+	sed -i.001 -e "s/\/path\/to\/webui/$(subst /,\\/,$(PWD))/" nginx/proxy
+
 server: ace
 	easy_install autobahn
 
