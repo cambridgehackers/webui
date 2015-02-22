@@ -14,15 +14,25 @@ dirname = None
 username = 'defaultuser'
 boardname = 'zedboard'
 branch = 'master'
+update = True
+patch = None
 
-def updateRepo(url, branch='master'):
+def updateRepo(url, branch='master', update=True):
     name = os.path.basename(url)
     if os.path.exists(name):
         os.chdir(name)
-        subprocess.call(['git', 'pull', 'origin', branch])
+        if update:
+            subprocess.call(['git', 'pull', 'origin', branch])
     else:
         subprocess.call(['git', 'clone', url, '-b', branch])
         os.chdir(name)
+
+def patchRepo(url, branch='master', patch=''):
+    subprocess.call(['git', 'checkout', '.'])
+    f = open('/tmp/patch', 'w')
+    f.write(patch)
+    f.close()
+    subprocess.call(['patch'], stdin=open('/tmp/patch'))
 
 if sys.argv[1].startswith('{'):
     info = json.loads(sys.argv[1])
@@ -39,6 +49,11 @@ if sys.argv[1].startswith('{'):
         username = info['username']
     if 'listfiles' in info:
         listfiles = info['listfiles']
+    if 'update' in info:
+        update = info['update']
+    if 'patch' in info:
+        print patch
+        patch = info['patch']
 else:
     repo = sys.argv[1]
     if len(sys.argv) > 2:
@@ -56,7 +71,9 @@ if not '/' in repo:
     repo = 'git://github.com/cambridgehackers/' + repo
 if not repo.startswith('git://github.com'):
     repo = 'git://github.com' + repo
-updateRepo(repo)
+updateRepo(repo, branch, update)
+if patch:
+    patchRepo(repo, branch, patch)
 if verbose:
     print 'dirname', dirname
 if dirname:
