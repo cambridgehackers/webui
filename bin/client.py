@@ -118,7 +118,8 @@ if __name__ == '__main__':
             'username': 'jameyhicks',
             'branch': 'master',
             'boardname': 'zedboard',
-            'diff': 1
+            'listfiles': 0,
+            'gitdiff': 1
             }
         factory.protocol = ShellClientProtocol
 
