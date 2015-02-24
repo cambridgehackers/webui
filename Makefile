@@ -7,7 +7,11 @@ CFLAGS = -O -g -I$(LIBWEBSOCKETS_LIB_DIR) -I$(LIBWEBSOCKETS_BUILD_DIR)
 
 LDFLAGS = -L$(LIBWEBSOCKETS_BUILD_DIR)/lib -lwebsockets
 
-all:
+help:
+	echo 'make config to update build server IP in scripts'
+	echo 'make runagent to run the build server agent'
+	echo 'make rundesktop to run the desktop agent'
+	echo 'make zynqagent to build the zynq device agent'
 
 config:
 	sed -i.001 -e "s/54.86.72.185/`bin/getpublicip.py`/" js/zdb.js
@@ -18,6 +22,9 @@ agent: ace
 
 runagent: agent
 	nohup ./bin/agent.py > agent.log 2> agent.errlog &
+
+rundesktop: agent
+	nohup ./bin/agent.py --probe > agent.log 2> agent.errlog &
 
 ace:
 	git clone git://github.com/ajaxorg/ace
@@ -32,9 +39,14 @@ $(LIBWEBSOCKETS_BUILD_DIR): $(LIBWEBSOCKETS_DIR)
 $(LIBWEBSOCKETS_LIB_DIR)/libwebsockets.so: $(LIBWEBSOCKETS_BUILD_DIR)
 	cd $(LIBWEBSOCKETS_BUILD_DIR); make
 
+## build the device agent for ubuntu
 bin/zedboard-server: src/zedboard-server.c $(LIBWEBSOCKETS_DIR) $(LIBWEBSOCKETS_LIB_DIR)/libwebsockets.so
 	mkdir -p bin
 	gcc $(CFLAGS) -o bin/zedboard-server src/zedboard-server.c $(LDFLAGS)
 
+## run the device agent for ubuntu
 run-zedboard-server: bin/zedboard-server
 	LD_LIBRARY_PATH=$(LIBWEBSOCKETS_BUILD_DIR)/lib ./bin/zedboard-server
+
+zynqagent:
+	ndk-build
