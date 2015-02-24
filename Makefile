@@ -13,11 +13,11 @@ config:
 	sed -i.001 -e "s/54.86.72.185/`bin/getpublicip.py`/" js/zdb.js
 	sed -i.001 -e "s/\/path\/to\/webui/$(subst /,\\/,$(PWD))/" nginx/proxy
 
-server: ace
+agent: ace
 	easy_install autobahn
 
-runserver: server
-	nohup ./bin/server.py > server.log 2> server.errlog &
+runagent: agent
+	nohup ./bin/agent.py > agent.log 2> agent.errlog &
 
 ace:
 	git clone git://github.com/ajaxorg/ace
@@ -36,5 +36,5 @@ bin/zedboard-server: src/zedboard-server.c $(LIBWEBSOCKETS_DIR) $(LIBWEBSOCKETS_
 	mkdir -p bin
 	gcc $(CFLAGS) -o bin/zedboard-server src/zedboard-server.c $(LDFLAGS)
 
-run: bin/zedboard-server
+run-zedboard-server: bin/zedboard-server
 	LD_LIBRARY_PATH=$(LIBWEBSOCKETS_BUILD_DIR)/lib ./bin/zedboard-server
