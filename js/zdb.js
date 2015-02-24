@@ -882,9 +882,20 @@ var Josh = Josh || {};
 	    ws.onmessage = function(evt) {
 		_console.log("received devices message " + evt.data);
 		deviceAddresses = JSON.parse(evt.data);
-		$discoveryPanel.append('<div>Device: ' + deviceAddresses[0] + '</div>');
-		deviceUri = 'ws://' + deviceAddresses[0] + ':7682/ws';
-		networkPrefixField.val(deviceAddresses[0]);
+		$('#boardaddress').empty();
+		for (var i in deviceAddresses) {
+		    var devaddr = deviceAddresses[i];
+		    $discoveryPanel.append('<div>Device: ' + devaddr + '</div>');
+		    $('#boardaddress').append('<option>' + devaddr + '</option>');
+		    deviceUri = 'ws://' + devaddr + ':7682/ws';
+		    networkPrefixField.val(devaddr);
+		}
+		$('#boardaddress').change(function () {
+		    var devaddr = $('#boardaddress').val();
+		    _console.log('board address selected ' + devaddr);
+		    deviceUri = 'ws://' + devaddr + ':7682/ws';
+		    networkPrefixField.val(devaddr);
+		});
 	    }
 	}
 	if (!usingAws) {
