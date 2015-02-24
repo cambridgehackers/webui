@@ -590,7 +590,7 @@ var Josh = Josh || {};
 		      'chmod agu+rx /mnt/sdcard/android.exe',
 		      'rmmod portalmem && insmod /mnt/sdcard/portalmem.ko',
 		      'rmmod zynqportal && insmod /mnt/sdcard/zynqportal.ko',
-		      'zcat /mnt/sdcard/mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && echo logic programmed',
+		      'zcat /mnt/sdcard/mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && sleep 2; echo logic programmed',
 		      '/mnt/sdcard/android.exe'
 		     ];
 	  var deferreds = [];
