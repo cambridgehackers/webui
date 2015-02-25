@@ -10,28 +10,38 @@ from autobahn.twisted.websocket import WebSocketClientProtocol, \
     WebSocketClientFactory
 
 
-deviceAddresses = []
+deviceAddresses = {}
 
 class DeviceClientProtocol(WebSocketClientProtocol):
 
     def onConnect(self, response):
+        global deviceAddresses
         print("Server connected: {0}".format(response.peer))
         m = re.match('tcp[46]:([^:]+):.*', response.peer)
         if m:
-            deviceAddresses.append(m.group(1))
+            print m.group(1)
+            self.ipaddr = m.group(1)
+            print self.ipaddr
+            deviceAddresses[self.ipaddr] = self.ipaddr
         print deviceAddresses
-        self.sendClose()
-        #self.factory.reactor.callLater(1, closeLater)
 
     def onOpen(self):
         global deviceAddresses
         print("WebSocket connection open.")
+        # fetch device hostname.txt
+        self.sendMessage('cat /mnt/sdcard/hostname.txt', False)
 
     def onMessage(self, payload, isBinary):
+        global deviceAddresses
         if isBinary:
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
             print("Text message received: {0}".format(payload.decode('utf8')))
+        if not payload.startswith('<status>') and not payload.startswith('<err>'):
+            lines = payload.split('\n')
+            deviceAddresses[self.ipaddr] = lines[0]
+        print deviceAddresses
+        self.sendClose()
 
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {0}".format(reason))

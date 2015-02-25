@@ -165,7 +165,7 @@ def probeAddrs(addrs):
         reactor.callLater(10,probeAddrs,rest)
     for addr in addrs:
         print 'probing addr', addr
-        factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=False, protocols=[])
+        factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=False, protocols=['shell'])
         factory.protocol = client.DeviceClientProtocol
         reactor.connectTCP(addr, 7682, factory)
 
@@ -210,7 +210,6 @@ if __name__ == '__main__':
    if options.probe:
        addrs = client.detect_network()
        print len(addrs)
-       #addrs = ['192.168.214.116', '172.27.5.235']
        reactor.callLater(1, probeAddrs, addrs)
 
    print os.environ
