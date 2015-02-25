@@ -884,9 +884,10 @@ var Josh = Josh || {};
 		deviceAddresses = JSON.parse(evt.data);
 		$('#boardaddress').empty();
 		for (var i in deviceAddresses) {
-		    var devaddr = deviceAddresses[i];
-		    $discoveryPanel.append('<div>Device: ' + devaddr + '</div>');
-		    $('#boardaddress').append('<option>' + devaddr + '</option>');
+		    var devname = deviceAddresses[i];
+		    var devaddr = i;
+		    $discoveryPanel.append('<div>Device: ' + devname + '</div>');
+		    $('#boardaddress').append('<option value="' + devaddr + '">' + devname + '</option>');
 		    deviceUri = 'ws://' + devaddr + ':7682/ws';
 		    networkPrefixField.val(devaddr);
 		}
