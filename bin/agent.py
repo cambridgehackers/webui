@@ -139,6 +139,7 @@ class ShellServerProtocol(WebSocketServerProtocol):
                self.cmd = payload
                self.process = reactor.spawnProcess(self.wspp, '/bin/sh', args=['sh', '-c', payload], env=env)
            print 'spawned process %s' % self.cmd
+           print '        process args %s' % payload
        elif protocol == 'push':
            self.f.write(payload)
        else:
@@ -165,7 +166,7 @@ def probeAddrs(addrs):
     for addr in addrs:
         print 'probing addr', addr
         factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=False, protocols=[])
-        factory.protocol = client.MyClientProtocol
+        factory.protocol = client.DeviceClientProtocol
         reactor.connectTCP(addr, 7682, factory)
 
 if __name__ == '__main__':
