@@ -360,15 +360,24 @@ var Josh = Josh || {};
 		  //_console.log('text: ' + text);
 		  if (text.indexOf('<file>') == 0) {
 		      var filename = text.slice(6);
+		      var editable = 0;
 		      if (filename.indexOf(boardname) == 0) {
 			  var uri = htmlPrefix + '/' + username + '/' + $project;
 		      } else {
 			  var uri = 'https:' + $repo.slice(4) + '/blob/master';
+			  editable = true;
 		      }
 		      if ($dir)
 			  uri = uri + '/' + $dir;
 		      uri = uri + '/' + filename;
-		      fileList.append('<li><a href="' + uri + '">' + filename + '</a><button id="editbutton" value="' + filename + '">Edit</button></li>');
+		      var fileline = '<li>' + filename + ': <button id="editbutton" value="' + filename + '">View</button> ';
+		      if (editable) {
+			  fileline = fileline + '<a href="' + uri + '">Edit<</a>';
+		      } else {
+			  fileline = fileline + '<a href="' + uri + '">Download</a>';
+		      }
+		      fileline = fileline + "</li>";
+		      fileList.append(fileline);
 		      filePanel.animate({'scrollTop': fileView.height()}, 1);
 		  }
 	      }
@@ -581,7 +590,7 @@ var Josh = Josh || {};
 		      'chmod agu+rx /mnt/sdcard/android.exe',
 		      'rmmod portalmem && insmod /mnt/sdcard/portalmem.ko',
 		      'rmmod zynqportal && insmod /mnt/sdcard/zynqportal.ko',
-		      'zcat /mnt/sdcard/mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && echo logic programmed',
+		      'zcat /mnt/sdcard/mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && sleep 2; echo logic programmed',
 		      '/mnt/sdcard/android.exe'
 		     ];
 	  var deferreds = [];
@@ -873,9 +882,20 @@ var Josh = Josh || {};
 	    ws.onmessage = function(evt) {
 		_console.log("received devices message " + evt.data);
 		deviceAddresses = JSON.parse(evt.data);
-		$discoveryPanel.append('<div>Device: ' + deviceAddresses[0] + '</div>');
-		deviceUri = 'ws://' + deviceAddresses[0] + ':7682/ws';
-		networkPrefixField.val(deviceAddresses[0]);
+		$('#boardaddress').empty();
+		for (var i in deviceAddresses) {
+		    var devaddr = deviceAddresses[i];
+		    $discoveryPanel.append('<div>Device: ' + devaddr + '</div>');
+		    $('#boardaddress').append('<option>' + devaddr + '</option>');
+		    deviceUri = 'ws://' + devaddr + ':7682/ws';
+		    networkPrefixField.val(devaddr);
+		}
+		$('#boardaddress').change(function () {
+		    var devaddr = $('#boardaddress').val();
+		    _console.log('board address selected ' + devaddr);
+		    deviceUri = 'ws://' + devaddr + ':7682/ws';
+		    networkPrefixField.val(devaddr);
+		});
 	    }
 	}
 	if (!usingAws) {
