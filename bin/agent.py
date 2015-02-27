@@ -164,7 +164,8 @@ def probeAddrs(addrs):
         addrs = addrs[0:limit]
         reactor.callLater(10,probeAddrs,rest)
     for addr in addrs:
-        print 'probing addr', addr
+        if options.verbose:
+            print 'probing addr', addr
         factory = WebSocketClientFactory("ws://%s:7682/ws" % addr, debug=False, protocols=['shell'])
         factory.protocol = client.DeviceClientProtocol
         reactor.connectTCP(addr, 7682, factory)
@@ -175,6 +176,7 @@ if __name__ == '__main__':
    argparser.add_argument('-d', '--debug', help='Enable debug log', default=False, action='store_true')
    argparser.add_argument('-p', '--probe', help='Probe for devices', default=False, action='store_true') 
    argparser.add_argument('--irclog', help='Log builds to irc.freenode.net', default=False, action='store_true')
+   argparser.add_argument('-v', '--verbose', help='Verbose', default=False, action='store_true')
 
    options = argparser.parse_args()
    if options.debug:
