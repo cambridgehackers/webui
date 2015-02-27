@@ -14,8 +14,8 @@ help:
 	echo 'make zynqagent to build the zynq device agent'
 
 config:
-	sed -i.001 -e "s/54.86.72.185/`bin/getpublicip.py`/" js/zdb.js
-	sed -i.001 -e "s/\/path\/to\/webui/$(subst /,\\/,$(PWD))/" nginx/proxy
+	sed -e "s/54.86.72.185/`bin/getpublicip.py`/" js/zdb.js.master >js/zdb.js
+	sed -e "s/\/path\/to\/webui/$(subst /,\\/,$(PWD))/" nginx/proxy.master >nginx/proxy
 
 agent: ace
 	easy_install autobahn
