@@ -372,7 +372,7 @@ var Josh = Josh || {};
 		      uri = uri + '/' + filename;
 		      var fileline = '<li>' + filename + ': <button id="editbutton" value="' + filename + '">View</button> ';
 		      if (editable) {
-			  fileline = fileline + '<a href="' + uri + '">Edit<</a>';
+			  fileline = fileline + '<a href="' + uri + '">Edit</a>';
 		      } else {
 			  fileline = fileline + '<a href="' + uri + '">Download</a>';
 		      }
