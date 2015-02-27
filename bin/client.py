@@ -79,11 +79,14 @@ def int2ip(addr):
 def detect_network():
     global zedboards
     zedboards = []
+    addrs = []
     for ifc in netifaces.interfaces():
         ifaddrs = netifaces.ifaddresses(ifc)
+        print ifaddrs
         if netifaces.AF_INET in ifaddrs.keys():
             af_inet = ifaddrs[netifaces.AF_INET]
             for i in af_inet: 
+                myaddr = i.get('addr')
                 if i.get('addr') == '127.0.0.1':
                     print 'skipping localhost'
                 else:
@@ -94,7 +97,8 @@ def detect_network():
                     start = start+1
                     end = end-1
                     print (int2ip(start), int2ip(end)) 
-                    return [int2ip(start+i) for i in xrange(1, (netmask ^ 0xffffffff))]
+                    addrs.extend([int2ip(start+i) for i in xrange(1, (netmask ^ 0xffffffff)) if int2ip(start+i) != myaddr])
+    return addrs
 
 def runpatch(patch):
     print 'running patch'
