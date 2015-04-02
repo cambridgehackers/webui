@@ -176,6 +176,7 @@ if __name__ == '__main__':
    argparser = argparse.ArgumentParser('Build server')
    argparser.add_argument('-d', '--debug', help='Enable debug log', default=False, action='store_true')
    argparser.add_argument('-p', '--probe', help='Probe for devices', default=False, action='store_true') 
+   argparser.add_argument('-n', '--network', help='Network to probe for devices', default=[], action='append') 
    argparser.add_argument('--irclog', help='Log builds to irc.freenode.net', default=False, action='store_true')
    argparser.add_argument('-v', '--verbose', help='Verbose', default=False, action='store_true')
 
@@ -211,7 +212,10 @@ if __name__ == '__main__':
    reactor.listenTCP(7682, site)
 
    if options.probe:
-       discover_tcp.detect_network()
+       if options.network:
+           discover_tcp.detect_network(options.network[0])
+       else:
+           discover_tcp.detect_network(options.network)
        addrs = discover_tcp.deviceAddresses
        print 'found devices', addrs
        print len(addrs)
