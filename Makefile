@@ -22,11 +22,11 @@ agent: ace
 	easy_install netifaces
 
 runagent: agent
-	nohup ./bin/agent.py > agent.log 2> agent.errlog &
+	PYTHONPATH=../connectal/scripts nohup ./bin/agent.py > agent.log 2> agent.errlog &
 
 rundesktop: agent
 	#./bin/agent.py --probe > agent.log 2> agent.errlog &
-	./bin/agent.py --probe
+	PYTHONPATH=../connectal/scripts ./bin/agent.py --probe
 
 ace:
 	git clone git://github.com/ajaxorg/ace

@@ -24,6 +24,7 @@ import irc
 import argparse
 
 import client
+import discover_tcp
 
 irclog = None
 
@@ -210,7 +211,9 @@ if __name__ == '__main__':
    reactor.listenTCP(7682, site)
 
    if options.probe:
-       addrs = client.detect_network()
+       discover_tcp.detect_network()
+       addrs = discover_tcp.deviceAddresses
+       print 'found devices', addrs
        print len(addrs)
        reactor.callLater(1, probeAddrs, addrs)
 
