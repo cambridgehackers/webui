@@ -584,13 +584,11 @@ var Josh = Josh || {};
 	  var baseuri = 'http://' + buildServerAddress + htmlPrefix + '/' + username + '/' + $project;
 	  if ($dir && ($dir !== 'undefined'))
 	      baseuri = baseuri + '/' + $dir;
-	  var cmds = ['rm -f /mnt/sdcard/android.exe /mnt/sdcard/mkTop.xdevcfg.bin.gz',
+	  var cmds = ['rm -f /mnt/sdcard/android.exe',
 		      'cd /mnt/sdcard; wget ' + baseuri + '/' + boardname + '/bin/android.exe',
-		      'cd /mnt/sdcard; wget ' + baseuri + '/' + boardname + '/bin/mkTop.xdevcfg.bin.gz',
 		      'chmod agu+rx /mnt/sdcard/android.exe',
 		      'rmmod portalmem && insmod /mnt/sdcard/portalmem.ko',
 		      'rmmod zynqportal && insmod /mnt/sdcard/zynqportal.ko',
-		      'zcat /mnt/sdcard/mkTop.xdevcfg.bin.gz > /dev/xdevcfg && cat /dev/connectal && sleep 2; echo logic programmed',
 		      '/mnt/sdcard/android.exe'
 		     ];
 	  var deferreds = [];
