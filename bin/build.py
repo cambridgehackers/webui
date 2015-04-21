@@ -22,6 +22,7 @@ def updateRepo(url, branch='master', update=True):
     if os.path.exists(name):
         os.chdir(name)
         if update:
+            subprocess.call(['git', 'checkout', '.'])
             subprocess.call(['git', 'pull', 'origin', branch])
     else:
         subprocess.call(['git', 'clone', url, '-b', branch])
