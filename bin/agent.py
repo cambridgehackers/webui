@@ -121,7 +121,6 @@ class ShellServerProtocol(WebSocketServerProtocol):
            self.wspp = WSProcessProtocol(self, isBinary, True)
            usePTY=True
            env = os.environ
-           env['PATH'] = env['PATH'] + ':bin'
            env['LM_LICENSE_FILE'] = '27000@localhost'
            if payload.startswith('{'):
                info = json.loads(payload)
@@ -210,6 +209,9 @@ if __name__ == '__main__':
    site = Site(root)
    site.protocol = HTTPChannelHixie76Aware # needed if Hixie76 is to be supported
    reactor.listenTCP(7682, site)
+
+   bindir = os.path.dirname(os.path.abspath(sys.argv[0]))
+   env['PATH'] = env['PATH'] + ':' + bindir
 
    if options.probe:
        if options.network:
