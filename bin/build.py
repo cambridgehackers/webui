@@ -33,7 +33,7 @@ def patchRepo(url, branch='master', patch=''):
     f = open('/tmp/patch', 'w')
     f.write(patch)
     f.close()
-    subprocess.call(['patch'], stdin=open('/tmp/patch'))
+    subprocess.call(['patch', '-p1'], stdin=open('/tmp/patch'))
 
 if sys.argv[1].startswith('{'):
     info = json.loads(sys.argv[1])
