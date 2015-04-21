@@ -91,6 +91,7 @@ os.environ['PATH'] = (os.environ['PATH']
                       + ':/scratch/Xilinx/Vivado/2014.1/bin'
                       + ':/scratch/android-ndk-r9d'
                       + ':' + os.getenv('BLUESPECDIR'))
+os.environ['BUILDCACHE_VERBOSE'] = '1'
 
 #exitcode = subprocess.call(['make', 'V=1', 'build.%s' % boardname])
 exitcode = subprocess.call(['make', 'build.%s' % boardname])
