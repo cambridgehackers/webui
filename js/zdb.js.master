@@ -312,7 +312,7 @@ var Josh = Josh || {};
       }
 
       // a default project for a new user to build
-      var $repo = "git://github.com/zedblue/leds";
+      var $repo = "git://github.com/connectal-examples/leds";
       var $project;
       var $dir;
       var setProject = function(repourl, dir, updateFields) {
